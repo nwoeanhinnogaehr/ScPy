@@ -26,12 +26,13 @@ void FSM_Dtor(FSM *unit) {
 
 void FSM_Next(FSM *unit, int numSamples) {
     cout << "FSM_Next" << endl;
-    float *in = IN(0);
-    float *out = OUT(0);
 
-    for (int i = 0; i < numSamples; i++) {
-        out[i] = in[i];
+    int codeSize = (int)ZIN0(0);
+    char code[codeSize + 1] = { 0 };
+    for (int i = 0; i < codeSize; i++) {
+        code[i] = (char)ZIN0(1 + i);
     }
+    cout << code << endl;
 }
 
 PluginLoad(FSM) {

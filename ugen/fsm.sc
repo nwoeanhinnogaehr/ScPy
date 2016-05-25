@@ -1,5 +1,5 @@
 FSM : UGen {
-    *new {
-        ^this.multiNew('control')
+    *new { arg code;
+        ^this.multiNewList(['control', code.size] ++ code.ascii);
     }
 }
