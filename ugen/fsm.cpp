@@ -48,7 +48,8 @@ FSM_Next(FSM* unit, int numSamples)
     unit->eval->eval(code);
 }
 
-PluginLoad(FSM)
+void
+load(InterfaceTable* inTable)
 {
     // InterfaceTable *inTable implicitly given as argument to the load function
     ft = inTable; // store pointer to InterfaceTable
