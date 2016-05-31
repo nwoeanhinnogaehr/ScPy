@@ -51,8 +51,6 @@ FSM_Next(FSM* unit, int numSamples)
 void
 load(InterfaceTable* inTable)
 {
-    // InterfaceTable *inTable implicitly given as argument to the load function
-    ft = inTable; // store pointer to InterfaceTable
-
+    ft = inTable;
     DefineDtorUnit(FSM);
 }
