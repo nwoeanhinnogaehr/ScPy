@@ -12,7 +12,7 @@ fsm.so : $(OBJ_FILES)
 	$(CXX) $(CXXFLAGS) *.o -shared -o fsm.so
 
 %.o : %.cpp %.h
-	$(CXX) -c $(CXXFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 install : fsm.so fsm.sc
 	cp -f fsm.sc fsm.so $(SC_EXT_DIR)
