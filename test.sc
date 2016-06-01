@@ -1,2 +1,5 @@
 s.boot
-{ FSM("print('hello world')") }.play
+{ FSM("
+import api
+print(api.Freq)
+") }.play

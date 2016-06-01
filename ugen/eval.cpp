@@ -4,6 +4,7 @@
 
 Evaluator::Evaluator()
 {
+    setenv("PYTHONPATH", ABS_SOURCE_PATH "/../py", 1);
     Py_Initialize();
 }
 
