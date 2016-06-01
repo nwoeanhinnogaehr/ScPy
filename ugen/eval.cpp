@@ -16,5 +16,13 @@ Evaluator::~Evaluator()
 void
 Evaluator::eval(const char* code)
 {
-    PyRun_SimpleString(code);
+    PyObject* main = PyImport_AddModule("__main__");
+    PyObject* globals = PyModule_GetDict(main);
+    PyObject* locals = PyDict_New();
+    PyObject* obj = PyRun_String(code, Py_eval_input, globals, locals);
+    if (!obj) {
+        PyErr_Print();
+        return;
+    }
+    PyObject_Print(obj, stdout, 0);
 }
