@@ -48,8 +48,8 @@ FSM_Next(FSM* unit, int numSamples)
     unit->eval->eval(code);
 }
 
-void
-load(InterfaceTable* inTable)
+
+PluginLoad(FSM)
 {
     ft = inTable;
     DefineDtorUnit(FSM);
