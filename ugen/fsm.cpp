@@ -39,8 +39,14 @@ FSM_Dtor(FSM* unit)
 void
 FSM_Next(FSM* unit, int numSamples)
 {
+    // the code to evaluate is passed in by setting the first argument to the
+    // length of the string and that many subsequent arguments to ASCII values
+    // represented as floating point numbers
+    // ...
+    // apparently this is the best way to do it.
     int codeSize = (int)ZIN0(0);
-    char code[codeSize + 1] = { 0 };
+    char code[codeSize + 1];
+    code[codeSize] = 0; // ensure null terminated
     for (int i = 0; i < codeSize; i++) {
         code[i] = (char)ZIN0(1 + i);
     }
