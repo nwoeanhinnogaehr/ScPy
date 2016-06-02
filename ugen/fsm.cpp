@@ -1,6 +1,7 @@
 #include "eval.h"
 #include <SC_PlugIn.h>
 #include <iostream>
+#include <Python.h>
 
 using namespace std;
 
@@ -10,6 +11,7 @@ struct FSM : public Unit
 {
     Evaluator* eval;
     char* code;
+    PyObject* obj;
 };
 
 extern "C" {
@@ -37,6 +39,8 @@ FSM_Ctor(FSM* unit)
         unit->code[i] = (char)ZIN0(1 + i);
     }
 
+    unit->obj = unit->eval->compile(unit->code);
+
     SETCALC(FSM_Next);
 }
 
@@ -46,15 +50,14 @@ FSM_Dtor(FSM* unit)
     cout << "FSM_Dtor" << endl;
 
     delete unit->eval;
-    delete [] unit->code;
+    delete[] unit->code;
 }
 
 void
 FSM_Next(FSM* unit, int numSamples)
 {
-    unit->eval->eval(unit->code);
+    unit->eval->eval(unit->obj);
 }
-
 
 PluginLoad(FSM)
 {
