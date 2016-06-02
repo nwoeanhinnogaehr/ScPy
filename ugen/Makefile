@@ -6,7 +6,7 @@ CXXFLAGS := -I/usr/include/SuperCollider/plugin_interface \
 	-fPIC \
 	-Wall -Wextra -std=c++11 \
 	-D ABS_SOURCE_PATH=\"`pwd`\"
-LDFLAGS := `pkg-config --cflags python3`
+LDFLAGS := `pkg-config --libs python3`
 SC_EXT_DIR := ~/.local/share/SuperCollider/Extensions
 OBJ_FILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
