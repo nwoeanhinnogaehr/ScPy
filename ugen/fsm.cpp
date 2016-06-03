@@ -22,6 +22,25 @@ void FSM_NextVoid(FSM* unit, int numSamples);
 }
 
 void
+done(FSM* unit)
+{
+    unit->mDone = true;
+    DoneAction(13, unit);
+    SETCALC(FSM_NextVoid);
+}
+
+bool
+checkError(FSM *unit)
+{
+    if (eval.checkError()) {
+        eval.printError();
+        done(unit);
+        return true;
+    }
+    return false;
+}
+
+void
 FSM_Ctor(FSM* unit)
 {
     cout << "FSM_Ctor" << endl;
@@ -39,13 +58,8 @@ FSM_Ctor(FSM* unit)
     }
 
     unit->obj = eval.compile(unit->code);
-    if (!unit->obj) {
-        PyErr_Print();
-        unit->mDone = true;
-        DoneAction(13, unit);
-        SETCALC(FSM_NextVoid);
+    if (checkError(unit))
         return;
-    }
 
     SETCALC(FSM_Next);
 }
@@ -62,8 +76,9 @@ void
 FSM_Next(FSM* unit, int)
 {
     eval.eval(unit->obj);
-    unit->mDone = true;
-    DoneAction(13, unit);
+    if (checkError(unit))
+        return;
+    done(unit); // for now, only run once
 }
 
 void

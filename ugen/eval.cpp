@@ -23,6 +23,7 @@ importQualified(PyObject* main, const char* name, const char* as)
 
 Evaluator::Evaluator()
 {
+    std::cout << "Evaluator()" << std::endl;
     setenv("PYTHONPATH", ABS_SOURCE_PATH "/../py", 1);
     Py_Initialize();
     PyObject* main = PyImport_AddModule("__main__");
@@ -31,10 +32,13 @@ Evaluator::Evaluator()
 
     importUnqualified(main, "api");
     importQualified(main, "numpy", "np");
+
+    _flusher = compile("import sys\nsys.stdout.flush()");
 }
 
 Evaluator::~Evaluator()
 {
+    std::cout << "~Evaluator()" << std::endl;
     Py_Finalize();
 }
 
@@ -50,5 +54,20 @@ PyObject*
 Evaluator::eval(PyObject* code)
 {
     PyObject* res = PyEval_EvalCode(code, _globals, _locals);
+    if (res)
+        PyEval_EvalCode(_flusher, _globals, _locals); // flush stdout
     return res;
+}
+
+bool
+Evaluator::checkError()
+{
+    return PyErr_Occurred() != nullptr;
+}
+
+void
+Evaluator::printError()
+{
+    PyErr_Print();
+    std::cout << std::flush;
 }
