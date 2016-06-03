@@ -1,15 +1,15 @@
 #include "eval.h"
+#include <Python.h>
 #include <SC_PlugIn.h>
 #include <iostream>
-#include <Python.h>
 
 using namespace std;
 
 static InterfaceTable* ft;
+static Evaluator eval;
 
 struct FSM : public Unit
 {
-    Evaluator* eval;
     char* code;
     PyObject* obj;
 };
@@ -18,14 +18,13 @@ extern "C" {
 void FSM_Ctor(FSM* unit);
 void FSM_Dtor(FSM* unit);
 void FSM_Next(FSM* unit, int numSamples);
+void FSM_NextVoid(FSM* unit, int numSamples);
 }
 
 void
 FSM_Ctor(FSM* unit)
 {
     cout << "FSM_Ctor" << endl;
-
-    unit->eval = new Evaluator;
 
     // the code to evaluate is passed in by setting the first argument to the
     // length of the string and that many subsequent arguments to ASCII values
@@ -39,7 +38,14 @@ FSM_Ctor(FSM* unit)
         unit->code[i] = (char)ZIN0(1 + i);
     }
 
-    unit->obj = unit->eval->compile(unit->code);
+    unit->obj = eval.compile(unit->code);
+    if (!unit->obj) {
+        PyErr_Print();
+        unit->mDone = true;
+        DoneAction(13, unit);
+        SETCALC(FSM_NextVoid);
+        return;
+    }
 
     SETCALC(FSM_Next);
 }
@@ -49,14 +55,20 @@ FSM_Dtor(FSM* unit)
 {
     cout << "FSM_Dtor" << endl;
 
-    delete unit->eval;
     delete[] unit->code;
 }
 
 void
-FSM_Next(FSM* unit, int numSamples)
+FSM_Next(FSM* unit, int)
 {
-    unit->eval->eval(unit->obj);
+    eval.eval(unit->obj);
+    unit->mDone = true;
+    DoneAction(13, unit);
+}
+
+void
+FSM_NextVoid(FSM*, int)
+{
 }
 
 PluginLoad(FSM)

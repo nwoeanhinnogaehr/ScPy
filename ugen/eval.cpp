@@ -1,6 +1,26 @@
 #include "eval.h"
 #include <iostream>
 
+void
+importUnqualified(PyObject* main, const char* name)
+{
+    PyObject* module = PyImport_ImportModule(name);
+    PyObject* attrib = PyObject_Dir(module);
+    Py_ssize_t numAttrs = PyList_Size(attrib);
+    for (Py_ssize_t i = 0; i < numAttrs; i++) {
+        PyObject* val = PyList_GetItem(attrib, i);
+        PyModule_AddObject(main, PyUnicode_AsUTF8(val),
+                           PyObject_GetAttr(module, val));
+    }
+}
+
+void
+importQualified(PyObject* main, const char* name, const char* as)
+{
+    PyObject* module = PyImport_ImportModule(name);
+    PyModule_AddObject(main, as, module);
+}
+
 Evaluator::Evaluator()
 {
     setenv("PYTHONPATH", ABS_SOURCE_PATH "/../py", 1);
@@ -8,13 +28,9 @@ Evaluator::Evaluator()
     PyObject* main = PyImport_AddModule("__main__");
     _globals = PyModule_GetDict(main);
     _locals = PyDict_New();
-    PyObject* apiModule = PyImport_ImportModule("api");
-    PyObject* apiAttrib = PyObject_Dir(apiModule);
-    Py_ssize_t numAttrs = PyList_Size(apiAttrib);
-    for (Py_ssize_t i = 0; i < numAttrs; i++) {
-        PyObject* val = PyList_GetItem(apiAttrib, i);
-        PyModule_AddObject(main, PyUnicode_AsUTF8(val), PyObject_GetAttr(apiModule, val));
-    }
+
+    importUnqualified(main, "api");
+    importQualified(main, "numpy", "np");
 }
 
 Evaluator::~Evaluator()
@@ -26,7 +42,7 @@ PyObject*
 Evaluator::compile(const char* code)
 {
     PyObject* obj =
-      Py_CompileStringExFlags(code, "sc-anon", Py_single_input, nullptr, 0);
+      Py_CompileStringExFlags(code, "sc-anon", Py_file_input, nullptr, 0);
     return obj;
 }
 
