@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Python.h>
+#include <string>
 
 class Evaluator
 {
@@ -9,7 +10,7 @@ class Evaluator
     ~Evaluator();
 
     PyObject* eval(PyObject* obj);
-    PyObject* compile(const char* code);
+    PyObject* compile(const std::string& code);
     bool checkError();
     void printError();
 

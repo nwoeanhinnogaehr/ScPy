@@ -1,6 +1,8 @@
 #include "eval.h"
 #include <iostream>
 
+using namespace std;
+
 void
 importUnqualified(PyObject* main, const char* name)
 {
@@ -23,7 +25,7 @@ importQualified(PyObject* main, const char* name, const char* as)
 
 Evaluator::Evaluator()
 {
-    std::cout << "Evaluator()" << std::endl;
+    cout << "Evaluator()" << endl;
     setenv("PYTHONPATH", ABS_SOURCE_PATH "/../py", 1);
     Py_Initialize();
     PyObject* main = PyImport_AddModule("__main__");
@@ -38,15 +40,15 @@ Evaluator::Evaluator()
 
 Evaluator::~Evaluator()
 {
-    std::cout << "~Evaluator()" << std::endl;
+    cout << "~Evaluator()" << endl;
     Py_Finalize();
 }
 
 PyObject*
-Evaluator::compile(const char* code)
+Evaluator::compile(const string& code)
 {
     PyObject* obj =
-      Py_CompileStringExFlags(code, "sc-anon", Py_file_input, nullptr, 0);
+      Py_CompileStringExFlags(code.c_str(), "sc-anon", Py_file_input, nullptr, 0);
     return obj;
 }
 
@@ -69,5 +71,5 @@ void
 Evaluator::printError()
 {
     PyErr_Print();
-    std::cout << std::flush;
+    cout << flush;
 }

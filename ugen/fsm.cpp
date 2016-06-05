@@ -2,6 +2,7 @@
 #include <Python.h>
 #include <SC_PlugIn.h>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -10,7 +11,7 @@ static Evaluator eval;
 
 struct FSM : public Unit
 {
-    char* code;
+    string code;
     PyObject* obj;
 };
 
@@ -30,7 +31,7 @@ done(FSM* unit)
 }
 
 bool
-checkError(FSM *unit)
+checkError(FSM* unit)
 {
     if (eval.checkError()) {
         eval.printError();
@@ -40,23 +41,22 @@ checkError(FSM *unit)
     return false;
 }
 
+string
+readString(FSM* unit, int idx)
+{
+    string s((size_t)ZIN0(idx), 0);
+    for (size_t i = 0; i < s.length(); i++) {
+        s[i] = (char)ZIN0(1 + i);
+    }
+    return s;
+}
+
 void
 FSM_Ctor(FSM* unit)
 {
     cout << "FSM_Ctor" << endl;
 
-    // the code to evaluate is passed in by setting the first argument to the
-    // length of the string and that many subsequent arguments to ASCII values
-    // represented as floating point numbers
-    // ...
-    // apparently this is the best way to do it.
-    int codeSize = (int)ZIN0(0);
-    unit->code = new char[codeSize + 1];
-    unit->code[codeSize] = 0; // ensure null terminated
-    for (int i = 0; i < codeSize; i++) {
-        unit->code[i] = (char)ZIN0(1 + i);
-    }
-
+    unit->code = readString(unit, 0);
     unit->obj = eval.compile(unit->code);
     if (checkError(unit))
         return;
@@ -65,11 +65,9 @@ FSM_Ctor(FSM* unit)
 }
 
 void
-FSM_Dtor(FSM* unit)
+FSM_Dtor(FSM*)
 {
     cout << "FSM_Dtor" << endl;
-
-    delete[] unit->code;
 }
 
 void
