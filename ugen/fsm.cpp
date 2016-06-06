@@ -1,5 +1,5 @@
 #include "eval.h"
-#include <Python.h>
+#include "ugen_util.h"
 #include <SC_PlugIn.h>
 #include <iostream>
 #include <string>
@@ -39,24 +39,6 @@ checkError(FSM* unit)
         return true;
     }
     return false;
-}
-
-template <typename T>
-T
-readAtom(FSM* unit, int& idx)
-{
-    return (T)ZIN0(idx++);
-}
-
-string
-readString(FSM* unit, int& idx)
-{
-    int length = readAtom<int>(unit, idx);
-    string s;
-    for (int i = 0; i < length; i++) {
-        s += readAtom<char>(unit, idx);
-    }
-    return s;
 }
 
 Type
