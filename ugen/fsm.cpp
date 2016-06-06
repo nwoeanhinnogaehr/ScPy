@@ -41,7 +41,8 @@ checkError(FSM* unit)
     return false;
 }
 
-template <typename T> T
+template <typename T>
+T
 readAtom(FSM* unit, int& idx)
 {
     return (T)ZIN0(idx++);
@@ -58,19 +59,16 @@ readString(FSM* unit, int& idx)
     return s;
 }
 
-enum class ArgType
+Type
+parseType(string& type)
 {
-    Buffer,
-    Number,
-    Unsupported
-};
-
-ArgType parseArgType(string& type) {
     if (type == "Integer" || type == "Float")
-        return ArgType::Number;
+        return Type::Float;
     if (type == "Buffer")
-        return ArgType::Buffer;
-    return ArgType::Unsupported;
+        return Type::FloatArray;
+    if (type == "FFT")
+        return Type::ComplexArray;
+    return Type::Unsupported;
 }
 
 void
@@ -88,15 +86,25 @@ FSM_Ctor(FSM* unit)
     int numArgs = readAtom<int>(unit, idx);
     for (int i = 0; i < numArgs; i++) {
         string name = readString(unit, idx);
-        string type = readString(unit, idx);
-        ArgType argType = parseArgType(type);
-        if (argType == ArgType::Unsupported) {
-            cout << "Argument '" << name << "' has unsupported type '" << type << "'" << endl;
-            done(unit);
-            return;
+        string typeStr = readString(unit, idx);
+        Type type = parseType(typeStr);
+        switch (type) {
+            case Type::Float: {
+                float val = readAtom<float>(unit, idx);
+                eval.defineGlobal(name, Object(val));
+                break;
+            }
+            case Type::FloatArray:
+                break;
+            case Type::ComplexArray:
+                break;
+            case Type::Unsupported:
+                cout << "Argument '" << name << "' has unsupported type '"
+                     << typeStr << "'" << endl;
+                done(unit);
+                return;
         }
-        float val = readAtom<float>(unit, idx);
-        cout << name << " -> " << val << " :: " << type << endl;
+        cout << name << " :: " << typeStr << endl;
     }
 
     SETCALC(FSM_Next);

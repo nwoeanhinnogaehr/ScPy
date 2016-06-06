@@ -47,8 +47,8 @@ Evaluator::~Evaluator()
 PyObject*
 Evaluator::compile(const string& code)
 {
-    PyObject* obj =
-      Py_CompileStringExFlags(code.c_str(), "sc-anon", Py_file_input, nullptr, 0);
+    PyObject* obj = Py_CompileStringExFlags(code.c_str(), "sc-anon",
+                                            Py_file_input, nullptr, 0);
     return obj;
 }
 
@@ -72,4 +72,10 @@ Evaluator::printError()
 {
     PyErr_Print();
     cout << flush;
+}
+
+void
+Evaluator::defineGlobal(const std::string& name, Object obj)
+{
+    PyDict_SetItemString(_globals, name.c_str(), obj.getPyObject());
 }
