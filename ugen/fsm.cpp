@@ -70,6 +70,13 @@ FSM_Ctor(FSM* unit)
     if (checkError(unit))
         return;
 
+    int numArgs = readAtom<int>(unit, idx);
+    for (int i = 0; i < numArgs; i++) {
+        string name = readString(unit, idx);
+        float val = readAtom<float>(unit, idx);
+        cout << name << " -> " << val << endl;
+    }
+
     SETCALC(FSM_Next);
 }
 
