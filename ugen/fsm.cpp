@@ -44,9 +44,10 @@ checkError(FSM* unit)
 string
 readString(FSM* unit, int idx)
 {
-    string s((size_t)ZIN0(idx), 0);
-    for (size_t i = 0; i < s.length(); i++) {
-        s[i] = (char)ZIN0(1 + i);
+    int length = (int)ZIN0(idx);
+    string s;
+    for (int i = 0; i < length; i++) {
+        s += (char)ZIN0(1 + i);
     }
     return s;
 }
@@ -55,6 +56,7 @@ void
 FSM_Ctor(FSM* unit)
 {
     cout << "FSM_Ctor" << endl;
+    new (unit) FSM;
 
     unit->code = readString(unit, 0);
     unit->obj = eval.compile(unit->code);
@@ -65,9 +67,10 @@ FSM_Ctor(FSM* unit)
 }
 
 void
-FSM_Dtor(FSM*)
+FSM_Dtor(FSM* unit)
 {
     cout << "FSM_Dtor" << endl;
+    unit->~FSM();
 }
 
 void
