@@ -1,4 +1,5 @@
 s.boot
+b = Buffer.new(s, 128);
 ({ FSM("
 print(np.array([1,2,3,4]))
-", (x:5, abc:6)) }.play)
+", (b:b, abc:6)) }.play)
