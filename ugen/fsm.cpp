@@ -58,6 +58,21 @@ readString(FSM* unit, int& idx)
     return s;
 }
 
+enum class ArgType
+{
+    Buffer,
+    Number,
+    Unsupported
+};
+
+ArgType parseArgType(string& type) {
+    if (type == "Integer" || type == "Float")
+        return ArgType::Number;
+    if (type == "Buffer")
+        return ArgType::Buffer;
+    return ArgType::Unsupported;
+}
+
 void
 FSM_Ctor(FSM* unit)
 {
@@ -72,9 +87,15 @@ FSM_Ctor(FSM* unit)
 
     int numArgs = readAtom<int>(unit, idx);
     for (int i = 0; i < numArgs; i++) {
-        float val = readAtom<float>(unit, idx);
-        string type = readString(unit, idx);
         string name = readString(unit, idx);
+        string type = readString(unit, idx);
+        ArgType argType = parseArgType(type);
+        if (argType == ArgType::Unsupported) {
+            cout << "Argument '" << name << "' has unsupported type '" << type << "'" << endl;
+            done(unit);
+            return;
+        }
+        float val = readAtom<float>(unit, idx);
         cout << name << " -> " << val << " :: " << type << endl;
     }
 
