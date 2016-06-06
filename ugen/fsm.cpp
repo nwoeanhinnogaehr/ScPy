@@ -41,13 +41,19 @@ checkError(FSM* unit)
     return false;
 }
 
-string
-readString(FSM* unit, int idx)
+template <typename T> T
+readAtom(FSM* unit, int& idx)
 {
-    int length = (int)ZIN0(idx);
+    return (T)ZIN0(idx++);
+}
+
+string
+readString(FSM* unit, int& idx)
+{
+    int length = readAtom<int>(unit, idx);
     string s;
     for (int i = 0; i < length; i++) {
-        s += (char)ZIN0(1 + i);
+        s += readAtom<char>(unit, idx);
     }
     return s;
 }
@@ -58,7 +64,8 @@ FSM_Ctor(FSM* unit)
     cout << "FSM_Ctor" << endl;
     new (unit) FSM;
 
-    unit->code = readString(unit, 0);
+    int idx = 0;
+    unit->code = readString(unit, idx);
     unit->obj = eval.compile(unit->code);
     if (checkError(unit))
         return;
