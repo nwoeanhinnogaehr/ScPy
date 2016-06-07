@@ -1,4 +1,9 @@
 #include "object.h"
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#define NO_IMPORT_ARRAY
+#define PY_ARRAY_UNIQUE_SYMBOL FSM_ARRAY_API
+#include <iostream>
+#include <numpy/arrayobject.h>
 
 Object::Object(float value)
 {
@@ -7,20 +12,32 @@ Object::Object(float value)
     _obj = Py_BuildValue("f", value);
 }
 
-Object::Object(std::vector<float> ptr)
+Object::Object(FloatArray& value)
 {
+    _value = new FloatArray(value);
+    _type = Type::FloatArray;
+    long dims[2] = { (long)value.channels, (long)value.frames };
+    _obj = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT,
+                                     &getFloatArray().data[0]);
 }
 
-Object::Object(std::vector<std::complex<float>> value)
+Object::Object(ComplexArray& value)
 {
+    _value = new ComplexArray(value);
+    _type = Type::FloatArray;
+    // TODO obj
 }
 
 Object::Object(PyObject* obj)
 {
+    _obj = obj;
+    // TODO get type, value
 }
 
 Object::~Object()
 {
+    // TODO don't leak memory
+    // note that python gets a reference to the data
 }
 
 Type
@@ -41,12 +58,14 @@ Object::getFloat()
     return *(float*)_value;
 }
 
-std::vector<float>
+FloatArray&
 Object::getFloatArray()
 {
+    return *(FloatArray*)_value;
 }
 
-std::vector<std::complex<float>>
+ComplexArray&
 Object::getComplexArray()
 {
+    return *(ComplexArray*)_value;
 }

@@ -1,5 +1,8 @@
 #include "eval.h"
 #include <iostream>
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#define PY_ARRAY_UNIQUE_SYMBOL FSM_ARRAY_API
+#include <numpy/arrayobject.h>
 
 using namespace std;
 
@@ -28,6 +31,7 @@ Evaluator::Evaluator()
     cout << "Evaluator()" << endl;
     setenv("PYTHONPATH", ABS_SOURCE_PATH "/../py", 1);
     Py_Initialize();
+    _import_array();
     PyObject* main = PyImport_AddModule("__main__");
     _globals = PyModule_GetDict(main);
     _locals = PyDict_New();

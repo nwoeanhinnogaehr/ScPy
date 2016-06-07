@@ -16,7 +16,7 @@ all : fsm.so
 fsm.so : $(OBJ_FILES)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) *.o -shared -o fsm.so
 
-%.o : %.cpp %.h
+%.o : %.cpp *.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 install : fsm.so fsm.sc

@@ -1,4 +1,5 @@
 s.boot
+b = Buffer.alloc(s, 10, 8);
 ({ FSM("
-print(x, y)
-", (x:6, y:67)) }.play)
+print(b)
+", (b:b)) }.play)

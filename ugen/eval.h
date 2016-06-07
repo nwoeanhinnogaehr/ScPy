@@ -1,8 +1,8 @@
 #pragma once
 
+#include "object.h"
 #include <Python.h>
 #include <string>
-#include "object.h"
 
 class Evaluator
 {

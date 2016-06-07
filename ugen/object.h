@@ -12,20 +12,44 @@ enum class Type
     Unsupported
 };
 
+struct FloatArray
+{
+    FloatArray(int channels, int frames, std::vector<float> data)
+      : data(data)
+      , channels(channels)
+      , frames(frames)
+    {
+    }
+    std::vector<float> data;
+    int channels, frames;
+};
+struct ComplexArray
+{
+    ComplexArray(int channels, int frames,
+                 std::vector<std::complex<float>> data)
+      : data(data)
+      , channels(channels)
+      , frames(frames)
+    {
+    }
+    std::vector<std::complex<float>> data;
+    int channels, frames;
+};
+
 class Object
 {
   public:
     Object(float value);
-    Object(std::vector<float> ptr);
-    Object(std::vector<std::complex<float>> value);
+    Object(FloatArray& ptr);
+    Object(ComplexArray& value);
     Object(PyObject* obj);
     ~Object();
 
     Type type();
     PyObject* getPyObject();
     float getFloat();
-    std::vector<float> getFloatArray();
-    std::vector<std::complex<float>> getComplexArray();
+    FloatArray& getFloatArray();
+    ComplexArray& getComplexArray();
 
   private:
     PyObject* _obj;

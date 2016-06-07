@@ -76,8 +76,12 @@ FSM_Ctor(FSM* unit)
                 eval.defineGlobal(name, Object(val));
                 break;
             }
-            case Type::FloatArray:
+            case Type::FloatArray: {
+                uint32 bufNum = readAtom<uint32>(unit, idx);
+                FloatArray buf = getFloatBuffer(unit, bufNum);
+                eval.defineGlobal(name, Object(buf));
                 break;
+            }
             case Type::ComplexArray:
                 break;
             case Type::Unsupported:
