@@ -12,18 +12,18 @@ Object::Object(float value)
     _obj = Py_BuildValue("f", value);
 }
 
-Object::Object(FloatArray& value)
+Object::Object(FloatBuffer& value)
 {
-    _value = new FloatArray(value);
-    _type = Type::FloatArray;
+    _value = new FloatBuffer(value);
+    _type = Type::FloatBuffer;
     long dims[2] = { (long)value.channels, (long)value.frames };
-    _obj = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT, getFloatArray().data);
+    _obj = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT, getFloatBuffer().data);
 }
 
-Object::Object(ComplexArray& value)
+Object::Object(ComplexBuffer& value)
 {
-    _value = new ComplexArray(value);
-    _type = Type::FloatArray;
+    _value = new ComplexBuffer(value);
+    _type = Type::FloatBuffer;
     // TODO obj
 }
 
@@ -56,14 +56,14 @@ Object::getFloat()
     return *(float*)_value;
 }
 
-FloatArray&
-Object::getFloatArray()
+FloatBuffer&
+Object::getFloatBuffer()
 {
-    return *(FloatArray*)_value;
+    return *(FloatBuffer*)_value;
 }
 
-ComplexArray&
-Object::getComplexArray()
+ComplexBuffer&
+Object::getComplexBuffer()
 {
-    return *(ComplexArray*)_value;
+    return *(ComplexBuffer*)_value;
 }

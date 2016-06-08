@@ -47,9 +47,9 @@ parseType(string& type)
     if (type == "Integer" || type == "Float")
         return Type::Float;
     if (type == "Buffer")
-        return Type::FloatArray;
+        return Type::FloatBuffer;
     if (type == "FFT")
-        return Type::ComplexArray;
+        return Type::ComplexBuffer;
     return Type::Unsupported;
 }
 
@@ -76,13 +76,13 @@ FSM_Ctor(FSM* unit)
                 eval.defineGlobal(name, Object(val));
                 break;
             }
-            case Type::FloatArray: {
+            case Type::FloatBuffer: {
                 uint32 bufNum = readAtom<uint32>(unit, idx);
-                FloatArray buf = getFloatBuffer(unit, bufNum);
+                FloatBuffer buf = getFloatBuffer(unit, bufNum);
                 eval.defineGlobal(name, Object(buf));
                 break;
             }
-            case Type::ComplexArray:
+            case Type::ComplexBuffer:
                 break;
             case Type::Unsupported:
                 cout << "Argument '" << name << "' has unsupported type '"

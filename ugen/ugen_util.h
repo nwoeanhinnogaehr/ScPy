@@ -43,10 +43,10 @@ getSndBuf(Unit* unit, uint32 bufNum)
     return buf;
 }
 
-FloatArray
+FloatBuffer
 getFloatBuffer(Unit* unit, uint32 bufNum)
 {
     SndBuf* buf = getSndBuf(unit, bufNum);
-    FloatArray out(buf->samples, buf->channels, buf->frames, buf->data);
+    FloatBuffer out(buf->samples, buf->channels, buf->frames, buf->data);
     return out;
 }

@@ -7,51 +7,41 @@
 enum class Type
 {
     Float,
-    FloatArray,
-    ComplexArray,
+    FloatBuffer,
+    ComplexBuffer,
     Unsupported
 };
 
-struct FloatArray
+template <typename T>
+struct Buffer
 {
-    FloatArray(int samples, int channels, int frames, float* data)
+    Buffer(int samples, int channels, int frames, T* data)
       : data(data)
       , samples(samples)
       , channels(channels)
       , frames(frames)
     {
     }
-    float* data;
+    T* data;
     int samples, channels, frames;
 };
-struct ComplexArray
-{
-    ComplexArray(int samples, int channels, int frames,
-                 std::complex<float>* data)
-      : data(data)
-      , samples(samples)
-      , channels(channels)
-      , frames(frames)
-    {
-    }
-    std::complex<float>* data;
-    int samples, channels, frames;
-};
+typedef Buffer<float> FloatBuffer;
+typedef Buffer<std::complex<float>> ComplexBuffer;
 
 class Object
 {
   public:
     Object(float value);
-    Object(FloatArray& ptr);
-    Object(ComplexArray& value);
+    Object(FloatBuffer& ptr);
+    Object(ComplexBuffer& value);
     Object(PyObject* obj);
     ~Object();
 
     Type type();
     PyObject* getPyObject();
     float& getFloat();
-    FloatArray& getFloatArray();
-    ComplexArray& getComplexArray();
+    FloatBuffer& getFloatBuffer();
+    ComplexBuffer& getComplexBuffer();
 
   private:
     PyObject* _obj;
