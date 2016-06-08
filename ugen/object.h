@@ -14,26 +14,28 @@ enum class Type
 
 struct FloatArray
 {
-    FloatArray(int channels, int frames, std::vector<float> data)
+    FloatArray(int samples, int channels, int frames, float* data)
       : data(data)
+      , samples(samples)
       , channels(channels)
       , frames(frames)
     {
     }
-    std::vector<float> data;
-    int channels, frames;
+    float* data;
+    int samples, channels, frames;
 };
 struct ComplexArray
 {
-    ComplexArray(int channels, int frames,
-                 std::vector<std::complex<float>> data)
+    ComplexArray(int samples, int channels, int frames,
+                 std::complex<float>* data)
       : data(data)
+      , samples(samples)
       , channels(channels)
       , frames(frames)
     {
     }
-    std::vector<std::complex<float>> data;
-    int channels, frames;
+    std::complex<float>* data;
+    int samples, channels, frames;
 };
 
 class Object
@@ -47,7 +49,7 @@ class Object
 
     Type type();
     PyObject* getPyObject();
-    float getFloat();
+    float& getFloat();
     FloatArray& getFloatArray();
     ComplexArray& getComplexArray();
 

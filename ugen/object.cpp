@@ -17,8 +17,7 @@ Object::Object(FloatArray& value)
     _value = new FloatArray(value);
     _type = Type::FloatArray;
     long dims[2] = { (long)value.channels, (long)value.frames };
-    _obj = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT,
-                                     &getFloatArray().data[0]);
+    _obj = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT, getFloatArray().data);
 }
 
 Object::Object(ComplexArray& value)
@@ -37,7 +36,6 @@ Object::Object(PyObject* obj)
 Object::~Object()
 {
     // TODO don't leak memory
-    // note that python gets a reference to the data
 }
 
 Type
@@ -52,7 +50,7 @@ Object::getPyObject()
     return _obj;
 }
 
-float
+float&
 Object::getFloat()
 {
     return *(float*)_value;

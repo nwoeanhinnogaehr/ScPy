@@ -47,14 +47,6 @@ FloatArray
 getFloatBuffer(Unit* unit, uint32 bufNum)
 {
     SndBuf* buf = getSndBuf(unit, bufNum);
-    LOCK_SNDBUF(buf);
-    FloatArray out(buf->channels, buf->frames,
-                   std::vector<float>(buf->data, buf->data + buf->samples));
+    FloatArray out(buf->samples, buf->channels, buf->frames, buf->data);
     return out;
-}
-
-void
-setFloatBuffer(Unit* unit, uint32 bufNum, FloatArray& arr)
-{
-    // TODO
 }
