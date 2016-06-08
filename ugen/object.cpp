@@ -23,8 +23,9 @@ Object::Object(FloatBuffer& value)
 Object::Object(ComplexBuffer& value)
 {
     _value = new ComplexBuffer(value);
-    _type = Type::FloatBuffer;
-    // TODO obj
+    _type = Type::ComplexBuffer;
+    long dims[2] = { (long)value.channels, (long)value.frames };
+    _obj = PyArray_SimpleNewFromData(2, dims, NPY_CFLOAT, getComplexBuffer().data);
 }
 
 Object::Object(PyObject* obj)
@@ -35,7 +36,20 @@ Object::Object(PyObject* obj)
 
 Object::~Object()
 {
-    // TODO don't leak memory
+    // TODO do we even need to store the value at all??
+    switch (type()) {
+        case Type::Float:
+            delete (float*)_value;
+            break;
+        case Type::FloatBuffer:
+            delete (FloatBuffer*)_value;
+            break;
+        case Type::ComplexBuffer:
+            delete (ComplexBuffer*)_value;
+            break;
+        case Type::Unsupported:
+            break;
+    }
 }
 
 Type

@@ -1,12 +1,12 @@
 #include "eval.h"
 #include "ugen_util.h"
-#include <SC_PlugIn.h>
+#include <FFT_UGens.h>
 #include <iostream>
 #include <string>
 
 using namespace std;
 
-static InterfaceTable* ft;
+InterfaceTable* ft;
 static Evaluator eval;
 
 struct FSM : public Unit
@@ -82,8 +82,12 @@ FSM_Ctor(FSM* unit)
                 eval.defineVariable(name, Object(buf));
                 break;
             }
-            case Type::ComplexBuffer:
+            case Type::ComplexBuffer: {
+                uint32 bufNum = readAtom<uint32>(unit, idx);
+                ComplexBuffer buf = getComplexBuffer(unit, bufNum);
+                eval.defineVariable(name, Object(buf));
                 break;
+            }
             case Type::Unsupported:
                 cout << "Argument '" << name << "' has unsupported type '"
                      << typeStr << "'" << endl;
@@ -109,7 +113,6 @@ FSM_Next(FSM* unit, int)
     eval.eval(unit->obj);
     if (checkError(unit))
         return;
-    done(unit); // for now, only run once
 }
 
 void
