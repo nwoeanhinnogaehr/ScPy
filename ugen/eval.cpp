@@ -79,7 +79,7 @@ Evaluator::printError()
 }
 
 void
-Evaluator::defineGlobal(const std::string& name, Object obj)
+Evaluator::defineVariable(const std::string& name, Object obj)
 {
-    PyDict_SetItemString(_globals, name.c_str(), obj.getPyObject());
+    PyDict_SetItemString(_locals, name.c_str(), obj.getPyObject());
 }

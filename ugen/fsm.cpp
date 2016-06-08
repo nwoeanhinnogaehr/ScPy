@@ -73,13 +73,13 @@ FSM_Ctor(FSM* unit)
         switch (type) {
             case Type::Float: {
                 float val = readAtom<float>(unit, idx);
-                eval.defineGlobal(name, Object(val));
+                eval.defineVariable(name, Object(val));
                 break;
             }
             case Type::FloatBuffer: {
                 uint32 bufNum = readAtom<uint32>(unit, idx);
                 FloatBuffer buf = getFloatBuffer(unit, bufNum);
-                eval.defineGlobal(name, Object(buf));
+                eval.defineVariable(name, Object(buf));
                 break;
             }
             case Type::ComplexBuffer:
