@@ -108,8 +108,28 @@ FSM_Dtor(FSM* unit)
 }
 
 void
-FSM_Next(FSM* unit, int)
+FSM_Next(FSM* unit, int bufferSize)
 {
+    int idx = 0;
+    readString(unit, idx); // code
+    int numArgs = readAtom<int>(unit, idx);
+    for (int i = 0; i < numArgs; i++) {
+        string name = readString(unit, idx);
+        string typeStr = readString(unit, idx);
+        Type type = parseType(typeStr);
+        switch (type) {
+            case Type::FloatBuffer:
+            case Type::ComplexBuffer: {
+                float fBufNum = readAtom<float>(unit, idx);
+                if (fBufNum < 0.0)
+                    return;
+            }
+            case Type::Float:
+            case Type::Unsupported:
+                break;
+        }
+    }
+
     eval.eval(unit->obj);
     if (checkError(unit))
         return;
