@@ -13,21 +13,20 @@ struct FSM : public Unit
 {
     string code;
     PyObject* obj;
+    int doneAction;
 };
 
 extern "C" {
 void FSM_Ctor(FSM* unit);
 void FSM_Dtor(FSM* unit);
 void FSM_Next(FSM* unit, int numSamples);
-void FSM_NextVoid(FSM* unit, int numSamples);
 }
 
 void
 done(FSM* unit)
 {
     unit->mDone = true;
-    DoneAction(13, unit);
-    SETCALC(FSM_NextVoid);
+    DoneAction(unit->doneAction, unit);
 }
 
 bool
@@ -35,7 +34,9 @@ checkError(FSM* unit)
 {
     if (eval.checkError()) {
         eval.printError();
-        done(unit);
+        unit->mDone = true;
+        DoneAction(2, unit);
+        SETCALC(*ClearUnitOutputs);
         return true;
     }
     return false;
@@ -60,6 +61,7 @@ FSM_Ctor(FSM* unit)
     new (unit) FSM;
 
     int idx = 0;
+    unit->doneAction = readAtom<int>(unit, idx);
     unit->code = readString(unit, idx);
     unit->obj = eval.compile(unit->code);
     if (checkError(unit))
@@ -108,13 +110,14 @@ FSM_Dtor(FSM* unit)
 }
 
 void
-FSM_Next(FSM* unit, int bufferSize)
+FSM_Next(FSM* unit, int)
 {
     int idx = 0;
+    readAtom<int>(unit, idx); // doneAction
     readString(unit, idx); // code
     int numArgs = readAtom<int>(unit, idx);
     for (int i = 0; i < numArgs; i++) {
-        string name = readString(unit, idx);
+        readString(unit, idx); // name
         string typeStr = readString(unit, idx);
         Type type = parseType(typeStr);
         switch (type) {
@@ -133,11 +136,8 @@ FSM_Next(FSM* unit, int bufferSize)
     eval.eval(unit->obj);
     if (checkError(unit))
         return;
-}
-
-void
-FSM_NextVoid(FSM*, int)
-{
+    if (unit->doneAction)
+        done(unit);
 }
 
 PluginLoad(FSM)
