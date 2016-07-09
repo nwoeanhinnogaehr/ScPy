@@ -103,7 +103,7 @@ Evaluator::printError()
 }
 
 void
-Evaluator::defineVariable(const std::string& name, Object obj)
+Evaluator::defineVariable(const std::string& name, Object& obj)
 {
     PyDict_SetItemString(_locals, name.c_str(), obj.getPyObject());
 }

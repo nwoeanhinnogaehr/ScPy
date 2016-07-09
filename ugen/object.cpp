@@ -17,7 +17,7 @@ Object::Object(FloatBuffer& value)
     _value = new FloatBuffer(value);
     _type = Type::FloatBuffer;
     long dims[2] = { (long)value.channels, (long)value.frames };
-    _obj = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT, getFloatBuffer().data);
+    _obj = PyArray_SimpleNew(2, dims, NPY_FLOAT);
 }
 
 Object::Object(ComplexBuffer& value)
@@ -25,18 +25,20 @@ Object::Object(ComplexBuffer& value)
     _value = new ComplexBuffer(value);
     _type = Type::ComplexBuffer;
     long dims[2] = { (long)value.channels, (long)value.frames };
-    _obj = PyArray_SimpleNewFromData(2, dims, NPY_CFLOAT, getComplexBuffer().data);
+    _obj = PyArray_SimpleNew(2, dims, NPY_CFLOAT);
 }
 
 Object::Object(PyObject* obj)
 {
     _obj = obj;
+    throw "unimplemented";
+    // not sure if this is necessary
     // TODO get type, value
 }
 
-Object::~Object()
+void
+Object::destroy()
 {
-    // TODO do we even need to store the value at all??
     switch (type()) {
         case Type::Float:
             delete (float*)_value;
@@ -50,6 +52,7 @@ Object::~Object()
         case Type::Unsupported:
             break;
     }
+    Py_DecRef(_obj);
 }
 
 Type
@@ -80,4 +83,50 @@ ComplexBuffer&
 Object::getComplexBuffer()
 {
     return *(ComplexBuffer*)_value;
+}
+
+void
+Object::send()
+{
+    switch (type()) {
+        case Type::Float:
+            break;
+        case Type::FloatBuffer: {
+            FloatBuffer& buf = getFloatBuffer();
+            memcpy(PyArray_DATA((PyArrayObject*)_obj), buf.data,
+                   buf.channels * buf.frames * sizeof(float));
+            break;
+        }
+        case Type::ComplexBuffer: {
+            ComplexBuffer& buf = getComplexBuffer();
+            memcpy(PyArray_DATA((PyArrayObject*)_obj), buf.data,
+                   buf.channels * buf.frames * sizeof(std::complex<float>));
+            break;
+        }
+        case Type::Unsupported:
+            break;
+    }
+}
+
+void
+Object::recv()
+{
+    switch (type()) {
+        case Type::Float:
+            break;
+        case Type::FloatBuffer: {
+            FloatBuffer& buf = getFloatBuffer();
+            memcpy(buf.data, PyArray_DATA((PyArrayObject*)_obj),
+                   buf.channels * buf.frames * sizeof(float));
+            break;
+        }
+        case Type::ComplexBuffer: {
+            ComplexBuffer& buf = getComplexBuffer();
+            memcpy(buf.data, PyArray_DATA((PyArrayObject*)_obj),
+                   buf.channels * buf.frames * sizeof(std::complex<float>));
+            break;
+        }
+        case Type::Unsupported:
+            break;
+    }
 }

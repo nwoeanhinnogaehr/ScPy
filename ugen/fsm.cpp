@@ -3,6 +3,7 @@
 #include <FFT_UGens.h>
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -14,6 +15,7 @@ struct FSM : public Unit
     string code;
     PyObject* obj;
     int doneAction;
+    vector<Object> objs;
 };
 
 extern "C" {
@@ -27,6 +29,7 @@ done(FSM* unit)
 {
     unit->mDone = true;
     DoneAction(unit->doneAction, unit);
+    SETCALC(*ClearUnitOutputs);
 }
 
 bool
@@ -34,9 +37,8 @@ checkError(FSM* unit)
 {
     if (eval.checkError()) {
         eval.printError();
-        unit->mDone = true;
-        DoneAction(2, unit);
-        SETCALC(*ClearUnitOutputs);
+        unit->doneAction = 2;
+        done(unit);
         return true;
     }
     return false;
@@ -75,19 +77,25 @@ FSM_Ctor(FSM* unit)
         switch (type) {
             case Type::Float: {
                 float val = readAtom<float>(unit, idx);
-                eval.defineVariable(name, Object(val));
+                Object obj(val);
+                unit->objs.emplace_back(obj);
+                eval.defineVariable(name, obj);
                 break;
             }
             case Type::FloatBuffer: {
                 uint32 bufNum = readAtom<uint32>(unit, idx);
                 FloatBuffer buf = getFloatBuffer(unit, bufNum);
-                eval.defineVariable(name, Object(buf));
+                Object obj(buf);
+                unit->objs.emplace_back(obj);
+                eval.defineVariable(name, obj);
                 break;
             }
             case Type::ComplexBuffer: {
                 uint32 bufNum = readAtom<uint32>(unit, idx);
                 ComplexBuffer buf = getComplexBuffer(unit, bufNum);
-                eval.defineVariable(name, Object(buf));
+                Object obj(buf);
+                unit->objs.emplace_back(obj);
+                eval.defineVariable(name, obj);
                 break;
             }
             case Type::Unsupported:
@@ -106,6 +114,7 @@ void
 FSM_Dtor(FSM* unit)
 {
     cout << "FSM_Dtor" << endl;
+    for (Object &o : unit->objs) o.destroy();
     unit->~FSM();
 }
 
@@ -133,7 +142,10 @@ FSM_Next(FSM* unit, int)
         }
     }
 
-    eval.eval(unit->obj);
+    for (Object &o : unit->objs) o.send(); // data to python
+    eval.eval(unit->obj); // call python
+    for (Object &o : unit->objs) o.recv(); // data from python
+
     if (checkError(unit))
         return;
     if (unit->doneAction)

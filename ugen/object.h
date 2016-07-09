@@ -35,13 +35,16 @@ class Object
     Object(FloatBuffer& ptr);
     Object(ComplexBuffer& value);
     Object(PyObject* obj);
-    ~Object();
+    void destroy();
 
     Type type();
     PyObject* getPyObject();
     float& getFloat();
     FloatBuffer& getFloatBuffer();
     ComplexBuffer& getComplexBuffer();
+
+    void send();
+    void recv();
 
   private:
     PyObject* _obj;
