@@ -3,6 +3,7 @@
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #define PY_ARRAY_UNIQUE_SYMBOL FSM_ARRAY_API
 #include <numpy/arrayobject.h>
+#include <sstream>
 
 using namespace std;
 
@@ -51,7 +52,30 @@ Evaluator::~Evaluator()
 PyObject*
 Evaluator::compile(const string& code)
 {
-    PyObject* obj = Py_CompileStringExFlags(code.c_str(), "sc-anon",
+    // preprocess
+    istringstream ss(code);
+    ostringstream out;
+    vector<string> lines;
+    string line;
+    size_t minIndent = 9999999;
+    while (getline(ss, line)) {
+        lines.push_back(line);
+        size_t i = 0;
+        while (line[i++] == ' ')
+            ;
+        if (i < line.length())
+            minIndent = min(minIndent, i - 1);
+    }
+    for (size_t i = 0; i < lines.size(); i++) {
+        if (lines[i].length() > minIndent)
+            out << lines[i].substr(minIndent) << "\n";
+        else
+            out << lines[i] << "\n";
+    }
+    // out << "globals().update(locals())\n";
+    // out << "import gc\ngc.collect()\n";
+
+    PyObject* obj = Py_CompileStringExFlags(out.str().c_str(), "sc-anon",
                                             Py_file_input, nullptr, 0);
     return obj;
 }
