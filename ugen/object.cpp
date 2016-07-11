@@ -5,6 +5,8 @@
 #include <iostream>
 #include <numpy/arrayobject.h>
 
+using namespace std;
+
 Object::Object(float value)
 {
     _value = new float(value);
@@ -99,8 +101,16 @@ Object::send()
         }
         case Type::ComplexBuffer: {
             ComplexBuffer& buf = getComplexBuffer();
-            memcpy(PyArray_DATA((PyArrayObject*)_obj), buf.data,
-                   buf.channels * buf.frames * sizeof(std::complex<float>));
+
+            // supercollider stores the dc and nyquist as floats at the beginning of the array
+            // to simplify working with the fft output, make them complex and move the nyquist
+            // to the end.
+            complex<float>* pyData = reinterpret_cast<complex<float>*>(
+                    PyArray_DATA((PyArrayObject*)_obj));
+            memcpy(pyData + 1, buf.data + 1,
+                   (buf.samples - 2) * sizeof(complex<float>));
+            pyData[0] = buf.data[0].real();
+            pyData[buf.samples - 1] = buf.data[0].imag();
             break;
         }
         case Type::Unsupported:
@@ -122,8 +132,14 @@ Object::recv()
         }
         case Type::ComplexBuffer: {
             ComplexBuffer& buf = getComplexBuffer();
-            memcpy(buf.data, PyArray_DATA((PyArrayObject*)_obj),
-                   buf.channels * buf.frames * sizeof(std::complex<float>));
+
+            // see commend above in send()
+            complex<float>* pyData = reinterpret_cast<complex<float>*>(
+                    PyArray_DATA((PyArrayObject*)_obj));
+            memcpy(buf.data + 1, pyData + 1,
+                   (buf.samples - 2) * sizeof(complex<float>));
+            buf.data[0] = complex<float>(pyData[0].real(),
+                    pyData[buf.samples - 1].real());
             break;
         }
         case Type::Unsupported:
