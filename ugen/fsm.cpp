@@ -1,4 +1,5 @@
 #include "eval.h"
+#include "sc_objs.h"
 #include "ugen_util.h"
 #include <FFT_UGens.h>
 #include <iostream>
@@ -15,7 +16,7 @@ struct FSM : public Unit
     string code;
     PyObject* obj;
     int doneAction;
-    vector<Object> objs;
+    vector<Object*> objs;
 };
 
 extern "C" {
@@ -44,6 +45,15 @@ checkError(FSM* unit)
     return false;
 }
 
+enum Type
+{
+    Float,
+    FloatBuffer,
+    ComplexBuffer,
+    Array,
+    Unsupported
+};
+
 Type
 parseType(string& type)
 {
@@ -53,7 +63,56 @@ parseType(string& type)
         return Type::FloatBuffer;
     if (type == "FFT")
         return Type::ComplexBuffer;
+    if (type == "Array")
+        return Type::Array;
     return Type::Unsupported;
+}
+
+Object*
+readObject(FSM* unit, int& idx)
+{
+    string typeStr = readString(unit, idx);
+    Type type = parseType(typeStr);
+    switch (type) {
+        case Type::FloatBuffer: {
+            uint32 bufNum = readAtom<uint32>(unit, idx);
+            SndBuf* buf = getSndBuf(unit, bufNum);
+            FloatBufferObject* obj = new FloatBufferObject(
+              buf->samples, buf->channels, buf->frames, buf->data);
+            return obj;
+        }
+        case Type::ComplexBuffer: {
+            uint32 bufNum = readAtom<uint32>(unit, idx);
+            SndBuf* buf = getSndBuf(unit, bufNum);
+            SCComplexBuf* complexBuf = ToComplexApx(buf);
+            ComplexBufferObject* obj = new ComplexBufferObject(
+              buf->samples / 2, buf->channels, buf->frames / 2,
+              reinterpret_cast<std::complex<float>*>(complexBuf));
+            return obj;
+        }
+        case Type::Array: {
+            int numItems = readAtom<int>(unit, idx);
+            vector<Object*> arrayItems;
+            for (int j = 0; j < numItems; j++) {
+                Object* obj = readObject(unit, idx);
+                if (!obj)
+                    return nullptr;
+                arrayItems.push_back(obj);
+            }
+            ArrayObject* obj = new ArrayObject(arrayItems);
+            return obj;
+            break;
+        }
+        case Type::Float: {
+            float value = readAtom<float>(unit, idx);
+            ConstObject* obj = new ConstObject(value);
+            return obj;
+        }
+        case Type::Unsupported:
+            cout << "Argument has unsupported type '" << typeStr << "'" << endl;
+            done(unit);
+            return nullptr;
+    }
 }
 
 void
@@ -72,39 +131,11 @@ FSM_Ctor(FSM* unit)
     int numArgs = readAtom<int>(unit, idx);
     for (int i = 0; i < numArgs; i++) {
         string name = readString(unit, idx);
-        string typeStr = readString(unit, idx);
-        Type type = parseType(typeStr);
-        switch (type) {
-            case Type::Float: {
-                float val = readAtom<float>(unit, idx);
-                Object obj(val);
-                unit->objs.emplace_back(obj);
-                eval.defineVariable(name, obj);
-                break;
-            }
-            case Type::FloatBuffer: {
-                uint32 bufNum = readAtom<uint32>(unit, idx);
-                FloatBuffer buf = getFloatBuffer(unit, bufNum);
-                Object obj(buf);
-                unit->objs.emplace_back(obj);
-                eval.defineVariable(name, obj);
-                break;
-            }
-            case Type::ComplexBuffer: {
-                uint32 bufNum = readAtom<uint32>(unit, idx);
-                ComplexBuffer buf = getComplexBuffer(unit, bufNum);
-                Object obj(buf);
-                unit->objs.emplace_back(obj);
-                eval.defineVariable(name, obj);
-                break;
-            }
-            case Type::Unsupported:
-                cout << "Argument '" << name << "' has unsupported type '"
-                     << typeStr << "'" << endl;
-                done(unit);
-                return;
-        }
-        cout << name << " :: " << typeStr << endl;
+        Object* obj = readObject(unit, idx);
+        if (!obj)
+            return;
+        unit->objs.emplace_back(obj);
+        eval.defineVariable(name, obj);
     }
 
     SETCALC(FSM_Next);
@@ -114,8 +145,37 @@ void
 FSM_Dtor(FSM* unit)
 {
     cout << "FSM_Dtor" << endl;
-    for (Object &o : unit->objs) o.destroy();
+    for (Object* o : unit->objs) {
+        o->destroy();
+        delete o;
+    }
     unit->~FSM();
+}
+
+bool
+bufferReady(FSM* unit, int& idx)
+{
+    string typeStr = readString(unit, idx);
+    Type type = parseType(typeStr);
+    switch (type) {
+        case Type::FloatBuffer:
+        case Type::ComplexBuffer: {
+            float fBufNum = readAtom<float>(unit, idx);
+            return fBufNum >= 0.0;
+        }
+        case Array: {
+            int numItems = readAtom<int>(unit, idx);
+            for (int j = 0; j < numItems; j++) {
+                if (!bufferReady(unit, idx)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        case Type::Float:
+        case Type::Unsupported:
+            return true;
+    }
 }
 
 void
@@ -123,28 +183,19 @@ FSM_Next(FSM* unit, int)
 {
     int idx = 0;
     readAtom<int>(unit, idx); // doneAction
-    readString(unit, idx); // code
+    readString(unit, idx);    // code
     int numArgs = readAtom<int>(unit, idx);
     for (int i = 0; i < numArgs; i++) {
         readString(unit, idx); // name
-        string typeStr = readString(unit, idx);
-        Type type = parseType(typeStr);
-        switch (type) {
-            case Type::FloatBuffer:
-            case Type::ComplexBuffer: {
-                float fBufNum = readAtom<float>(unit, idx);
-                if (fBufNum < 0.0)
-                    return;
-            }
-            case Type::Float:
-            case Type::Unsupported:
-                break;
-        }
+        if (!bufferReady(unit, idx))
+            return;
     }
 
-    for (Object &o : unit->objs) o.send(); // data to python
+    for (Object* o : unit->objs)
+        o->send();        // data to python
     eval.eval(unit->obj); // call python
-    for (Object &o : unit->objs) o.recv(); // data from python
+    for (Object* o : unit->objs)
+        o->recv(); // data from python
 
     if (checkError(unit))
         return;

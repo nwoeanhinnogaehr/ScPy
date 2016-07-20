@@ -4,6 +4,7 @@
 #define PY_ARRAY_UNIQUE_SYMBOL FSM_ARRAY_API
 #include <numpy/arrayobject.h>
 #include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -103,7 +104,7 @@ Evaluator::printError()
 }
 
 void
-Evaluator::defineVariable(const std::string& name, Object& obj)
+Evaluator::defineVariable(const std::string& name, Object* obj)
 {
-    PyDict_SetItemString(_locals, name.c_str(), obj.getPyObject());
+    PyDict_SetItemString(_locals, name.c_str(), obj->pyObject());
 }

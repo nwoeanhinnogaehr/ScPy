@@ -14,7 +14,7 @@ class Evaluator
     PyObject* compile(const std::string& code);
     bool checkError();
     void printError();
-    void defineVariable(const std::string& name, Object& obj);
+    void defineVariable(const std::string& name, Object* obj);
 
   private:
     PyObject *_globals, *_locals;

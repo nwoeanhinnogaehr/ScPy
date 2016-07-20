@@ -42,21 +42,3 @@ getSndBuf(Unit* unit, uint32 bufNum)
     }
     return buf;
 }
-
-FloatBuffer
-getFloatBuffer(Unit* unit, uint32 bufNum)
-{
-    SndBuf* buf = getSndBuf(unit, bufNum);
-    FloatBuffer out(buf->samples, buf->channels, buf->frames, buf->data);
-    return out;
-}
-
-ComplexBuffer
-getComplexBuffer(Unit* unit, uint32 bufNum)
-{
-    SndBuf* buf = getSndBuf(unit, bufNum);
-    SCComplexBuf* complexBuf = ToComplexApx(buf);
-    ComplexBuffer out(buf->samples / 2, buf->channels, buf->frames / 2,
-                      reinterpret_cast<std::complex<float>*>(complexBuf));
-    return out;
-}
