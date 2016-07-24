@@ -3,14 +3,20 @@ FSM : UGen {
         var convertString = { |str|
             [str.asString.size] ++ str.ascii
         };
+        var convertClass = { |x|
+            var className = x.class.asString;
+            case
+                { className == "FFT" } { className } // special case, FFT is a UGen but is handled differently
+                { x.isKindOf(UGen) } { "UGen" }
+                { true } { className };
+        };
         var convertValue = { |x|
             if (x.class == Array,
-                { [convertString.value(x.class.asString), [x.size]
+                { [convertString.value(convertClass.value(x)), [x.size]
                     ++ x.collect({ |y| convertValue.value(y) })] },
-                { [convertString.value(x.class.asString), x] })
+                { [convertString.value(convertClass.value(x)), x] })
         };
         var convertArray = { |array|
-            array.postln;
             array.collect(convertValue);
         };
         var convertArgs = { |args|
@@ -20,7 +26,6 @@ FSM : UGen {
             ++ convertString.value(code)
             ++ args.size
             ++ convertArgs.value(args);
-        argsList.postln;
         ^this.multiNewList(argsList);
     }
 }

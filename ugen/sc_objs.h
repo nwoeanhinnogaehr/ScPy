@@ -71,3 +71,13 @@ class ConstObject : public Object
   public:
     ConstObject(float value);
 };
+
+class ControlUGenObject : public Object
+{
+  public:
+    ControlUGenObject(float* ptr);
+    virtual void send();
+
+  private:
+    float* _ptr;
+};

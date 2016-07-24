@@ -51,6 +51,7 @@ enum Type
     FloatBuffer,
     ComplexBuffer,
     Array,
+    UGen,
     Unsupported
 };
 
@@ -65,6 +66,8 @@ parseType(string& type)
         return Type::ComplexBuffer;
     if (type == "Array")
         return Type::Array;
+    if (type == "UGen")
+        return Type::UGen;
     return Type::Unsupported;
 }
 
@@ -73,6 +76,7 @@ readObject(FSM* unit, int& idx)
 {
     string typeStr = readString(unit, idx);
     Type type = parseType(typeStr);
+
     switch (type) {
         case Type::FloatBuffer: {
             uint32 bufNum = readAtom<uint32>(unit, idx);
@@ -101,11 +105,15 @@ readObject(FSM* unit, int& idx)
             }
             ArrayObject* obj = new ArrayObject(arrayItems);
             return obj;
-            break;
         }
         case Type::Float: {
             float value = readAtom<float>(unit, idx);
             ConstObject* obj = new ConstObject(value);
+            return obj;
+        }
+        case Type::UGen: {
+            float* ptr = IN(idx++);
+            ControlUGenObject* obj = new ControlUGenObject(ptr);
             return obj;
         }
         case Type::Unsupported:
@@ -172,9 +180,12 @@ bufferReady(FSM* unit, int& idx)
             }
             return true;
         }
+        case Type::UGen:
         case Type::Float:
-        case Type::Unsupported:
+            idx++;
             return true;
+        case Type::Unsupported:
+            return false;
     }
 }
 

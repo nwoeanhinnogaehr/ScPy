@@ -1,4 +1,14 @@
 #include "sc_objs.h"
+#include <iostream>
+
+void
+sanitize(int len, float* data)
+{
+    for (int i = 0; i < len; i++) {
+        if (isnan(data[i]))
+            data[i] = 0;
+    }
+}
 
 FloatBufferObject::FloatBufferObject(int samples, int channels, int frames,
                                      float* data)
@@ -22,6 +32,7 @@ FloatBufferObject::recv()
 {
     memcpy(_data, PyArray_DATA((PyArrayObject*)_obj),
            _channels * _frames * sizeof(float));
+    sanitize(_samples, (float*)PyArray_DATA((PyArrayObject*)_obj));
 }
 
 ComplexBufferObject::ComplexBufferObject(int samples, int channels, int frames,
@@ -56,6 +67,7 @@ ComplexBufferObject::recv()
       reinterpret_cast<complex<float>*>(PyArray_DATA((PyArrayObject*)_obj));
     memcpy(_data + 1, pyData + 1, (_samples - 2) * sizeof(complex<float>));
     _data[0] = complex<float>(pyData[0].real(), pyData[_samples - 1].real());
+    sanitize(_samples * 2 - 2, (float*)PyArray_DATA((PyArrayObject*)_obj));
 }
 
 ArrayObject::ArrayObject(vector<Object*> objs)
@@ -70,6 +82,8 @@ ArrayObject::ArrayObject(vector<Object*> objs)
 void
 ArrayObject::send()
 {
+    // TODO if the array items have been reassigned in python, this can
+    // segfault!
     for (Object* obj : _objs) {
         obj->send();
     }
@@ -86,4 +100,17 @@ ArrayObject::recv()
 ConstObject::ConstObject(float value)
 {
     _obj = Py_BuildValue("f", value);
+}
+
+ControlUGenObject::ControlUGenObject(float* ptr)
+{
+    _ptr = ptr;
+    long dims[1] = { 1 };
+    _obj = PyArray_SimpleNew(1, dims, NPY_FLOAT);
+}
+
+void
+ControlUGenObject::send()
+{
+    *(float*)PyArray_DATA((PyArrayObject*)_obj) = *_ptr;
 }
