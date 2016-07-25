@@ -11,7 +11,7 @@ using namespace std;
 InterfaceTable* ft;
 static Evaluator eval;
 
-struct FSM : public Unit
+struct Py : public Unit
 {
     string code;
     PyObject* obj;
@@ -20,13 +20,13 @@ struct FSM : public Unit
 };
 
 extern "C" {
-void FSM_Ctor(FSM* unit);
-void FSM_Dtor(FSM* unit);
-void FSM_Next(FSM* unit, int numSamples);
+void Py_Ctor(Py* unit);
+void Py_Dtor(Py* unit);
+void Py_Next(Py* unit, int numSamples);
 }
 
 void
-done(FSM* unit)
+done(Py* unit)
 {
     unit->mDone = true;
     DoneAction(unit->doneAction, unit);
@@ -34,7 +34,7 @@ done(FSM* unit)
 }
 
 bool
-checkError(FSM* unit)
+checkError(Py* unit)
 {
     if (eval.checkError()) {
         eval.printError();
@@ -72,7 +72,7 @@ parseType(string& type)
 }
 
 Object*
-readObject(FSM* unit, int& idx)
+readObject(Py* unit, int& idx)
 {
     string typeStr = readString(unit, idx);
     Type type = parseType(typeStr);
@@ -124,10 +124,10 @@ readObject(FSM* unit, int& idx)
 }
 
 void
-FSM_Ctor(FSM* unit)
+Py_Ctor(Py* unit)
 {
-    cout << "FSM_Ctor" << endl;
-    new (unit) FSM;
+    cout << "Py_Ctor" << endl;
+    new (unit) Py;
 
     int idx = 0;
     unit->doneAction = readAtom<int>(unit, idx);
@@ -146,22 +146,22 @@ FSM_Ctor(FSM* unit)
         eval.defineVariable(name, obj);
     }
 
-    SETCALC(FSM_Next);
+    SETCALC(Py_Next);
 }
 
 void
-FSM_Dtor(FSM* unit)
+Py_Dtor(Py* unit)
 {
-    cout << "FSM_Dtor" << endl;
+    cout << "Py_Dtor" << endl;
     for (Object* o : unit->objs) {
         o->destroy();
         delete o;
     }
-    unit->~FSM();
+    unit->~Py();
 }
 
 bool
-bufferReady(FSM* unit, int& idx)
+bufferReady(Py* unit, int& idx)
 {
     string typeStr = readString(unit, idx);
     Type type = parseType(typeStr);
@@ -190,7 +190,7 @@ bufferReady(FSM* unit, int& idx)
 }
 
 void
-FSM_Next(FSM* unit, int)
+Py_Next(Py* unit, int)
 {
     int idx = 0;
     readAtom<int>(unit, idx); // doneAction
@@ -214,8 +214,8 @@ FSM_Next(FSM* unit, int)
         done(unit);
 }
 
-PluginLoad(FSM)
+PluginLoad(Py)
 {
     ft = inTable;
-    DefineDtorUnit(FSM);
+    DefineDtorUnit(Py);
 }

@@ -1,7 +1,7 @@
 #include "eval.h"
 #include <iostream>
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#define PY_ARRAY_UNIQUE_SYMBOL FSM_ARRAY_API
+#define PY_ARRAY_UNIQUE_SYMBOL SCPY_ARRAY_API
 #include <numpy/arrayobject.h>
 #include <sstream>
 #include <vector>

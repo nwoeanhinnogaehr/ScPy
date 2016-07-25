@@ -1,4 +1,4 @@
-FSM : UGen {
+Py : UGen {
     *new { arg code, args=(), doneAction=0;
         var convertString = { |str|
             [str.asString.size] ++ str.ascii
@@ -29,8 +29,8 @@ FSM : UGen {
         ^this.multiNewList(argsList);
     }
 }
-FSMInit {
+PyOnce {
     *new { arg code, args=(), doneAction=2;
-        { FSM(code, args, doneAction) }.play
+        { Py(code, args, doneAction) }.play
     }
 }

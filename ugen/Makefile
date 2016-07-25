@@ -11,16 +11,16 @@ LDFLAGS := `pkg-config --libs python3`
 SC_EXT_DIR := ~/.local/share/SuperCollider/Extensions
 OBJ_FILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
-all : fsm.so
+all : scpy.so
 
-fsm.so : $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) *.o -shared -o fsm.so
+scpy.so : $(OBJ_FILES)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) *.o -shared -o scpy.so
 
 %.o : %.cpp *.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-install : fsm.so fsm.sc
-	cp -f fsm.sc fsm.so $(SC_EXT_DIR)
+install : scpy.so scpy.sc
+	cp -f scpy.sc scpy.so $(SC_EXT_DIR)
 
 clean :
 	rm -rf *.so *.o
