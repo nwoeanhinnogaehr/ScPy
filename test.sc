@@ -11,9 +11,9 @@ s.boot; // run this line first
     // immediately.
     PyOnce("
         def fn(x, time, mouse):
-            x = abs(x) + 1j * angle(x) # to polar
+            x = to_polar(x)
             x.real = cos(x.real*mouse)*x.real # some weird operation
-            x = x.real * exp(1j * x.imag) # from polar
+            x = from_polar(x)
             return x
     ");
 )

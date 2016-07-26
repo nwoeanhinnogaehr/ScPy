@@ -1,4 +1,4 @@
-from numpy import *
+import numpy as np
 
 def out(dst, src):
     if type(dst) is list:
@@ -8,3 +8,9 @@ def out(dst, src):
         dst[:] = src[:]
     else:
         raise "invalid output type"
+
+def to_polar(x):
+    return np.abs(x) + 1j * np.angle(x)
+
+def from_polar(x):
+    return x.real * np.exp(1j * x.imag)
