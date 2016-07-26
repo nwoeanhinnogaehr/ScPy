@@ -11,9 +11,9 @@ s.boot; // run this line first
     // immediately.
     PyOnce("
         def fn(x, time, mouse):
-            x = np.abs(x) + 1j * np.angle(x) # to polar
-            x.real = np.cos(x.real*mouse)*x.real # some weird operation
-            x = x.real * np.exp(1j * x.imag) # from polar
+            x = abs(x) + 1j * angle(x) # to polar
+            x.real = cos(x.real*mouse)*x.real # some weird operation
+            x = x.real * exp(1j * x.imag) # from polar
             return x
     ");
 )
@@ -25,13 +25,8 @@ s.boot; // run this line first
         var chain = FFT(b.collect(_.bufnum), in);
         var mouse = MouseX.kr(1, 0);
         Py("
-            # call the function defined above
-            y = fn(np.array(x), time, mouse)
-
-            # write back the transformed version
-            x[0][:] = y[0]
-            x[1][:] = y[1]
-        ", (x:chain, time: Sweep.kr, mouse:mouse));
+            out(x, fn(x, time, mouse))
+        ", (x:chain, time:Sweep.kr, mouse:mouse));
         Out.ar(0, IFFT(chain).clip2(1));
     }.play(s)
 )

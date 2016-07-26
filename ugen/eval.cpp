@@ -39,7 +39,7 @@ Evaluator::Evaluator()
     _locals = PyDict_New();
 
     importUnqualified(main, "api");
-    importQualified(main, "numpy", "np");
+    importUnqualified(main, "numpy");
 
     _flusher = compile("import sys\nsys.stdout.flush()");
 }
