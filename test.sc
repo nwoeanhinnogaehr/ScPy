@@ -27,7 +27,7 @@ s.boot; // run this line first
     {
         var in = Saw.ar(32); // input is a sawtooth wave
         var chain = FFT(b.collect(_.bufnum), in, hop:0.125);
-        var mouse = MouseX.kr(1, 0);
+        var mouse = [MouseX.kr(1, 0), MouseY.kr(1, 0)];
         Py("
             out(x, fn(x, time, mouse))
         ", (x:chain, time:Sweep.kr, mouse:mouse));
