@@ -128,6 +128,8 @@ Py_Ctor(Py* unit)
 {
     cout << "Py_Ctor" << endl;
     new (unit) Py;
+    if (checkError(unit))
+        return;
 
     int idx = 0;
     unit->doneAction = readAtom<int>(unit, idx);

@@ -12,10 +12,22 @@ void
 importUnqualified(PyObject* main, const char* name)
 {
     PyObject* module = PyImport_ImportModule(name);
+    if (!module) {
+        PyErr_Print();
+        return;
+    }
     PyObject* attrib = PyObject_Dir(module);
+    if (!attrib) {
+        PyErr_Print();
+        return;
+    }
     Py_ssize_t numAttrs = PyList_Size(attrib);
     for (Py_ssize_t i = 0; i < numAttrs; i++) {
         PyObject* val = PyList_GetItem(attrib, i);
+        if (!val) {
+            PyErr_Print();
+            return;
+        }
         PyModule_AddObject(main, PyUnicode_AsUTF8(val),
                            PyObject_GetAttr(module, val));
     }
