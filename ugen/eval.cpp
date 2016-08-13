@@ -79,13 +79,14 @@ Evaluator::compile(const string& code)
         if (i < line.length())
             minIndent = min(minIndent, i - 1);
     }
+    out << "seterr(all='ignore')\n";
     for (size_t i = 0; i < lines.size(); i++) {
         if (lines[i].length() > minIndent)
             out << lines[i].substr(minIndent) << "\n";
         else
             out << lines[i] << "\n";
     }
-    // out << "globals().update(locals())\n";
+    out << "globals().update(locals())\n";
     // out << "import gc\ngc.collect()\n";
 
     PyObject* obj = Py_CompileStringExFlags(out.str().c_str(), "sc-anon",
