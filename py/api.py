@@ -144,3 +144,15 @@ class PhaseVocoder:
         y[row, col] += x
         return y
 
+    def to_bin_offset(self, x):
+        """
+        Converts frequency into bin relative form - the center of each bin
+        becomes that bin's zero frequency.
+        """
+        return x.real + 1j*(x.imag - self.freq_per_bin*np.indices(x.shape)[0])
+
+    def from_bin_offset(self, x):
+        """
+        The inverse of to_bin_offset().
+        """
+        return x.real + 1j*(x.imag + self.freq_per_bin*np.indices(x.shape)[0])
