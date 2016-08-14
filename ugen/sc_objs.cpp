@@ -5,7 +5,7 @@ void
 sanitize(int len, float* data)
 {
     for (int i = 0; i < len; i++) {
-        if (isnan(data[i]))
+        if (isnan(data[i]) || isinf(data[i]))
             data[i] = 0;
     }
 }
