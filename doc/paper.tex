@@ -12,14 +12,15 @@
 \maketitle
 
 \begin{abstract}
-    SuperCollider, a language for live coding and algorithmic synthesis of audio,
-    includes features for performing spectral analysis and manipulation of audio streams using the
-    Short-Time Fourier Transform (STFT). However, available spectral operations are limited to those
-    implemented individually as Unit Generators (UGens). Many basic operations exist and can be
-    composed to produce complex effects, however this process is tedious and leaves many of the
-    possible effects impossible to create. We present ScPy, a UGen which embeds Python scripts within
-    SuperCollider to extend the space of possible effects using the optimized vector operations
-    provided by the NumPy and SciPy libraries.
+    SuperCollider, a language for sound synthesis and algorithmic composition of audio,
+    supports a wide range of synthesis, effect and analysis algorithms. However, available
+    operations are limited to those implemented explicitly as Unit Generators (UGens). Since UGens
+    are written in C/C++ and loaded as plugins during the SuperCollider server boot process, it is
+    impossible to live code UGens, which limits the user to creating sound as a composition of
+    existing UGens during a performance. Many of the vector operations required for efficiently
+    creating complex audio effects are notably missing or tedious to use. To overcome this, we
+    present ScPy, a UGen which embeds Python within SuperCollider to enable the use of the
+    optimized vector operations provided by the NumPy and SciPy libraries.
 \end{abstract}
 
 \section{Introduction}
