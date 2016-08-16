@@ -1,7 +1,6 @@
 \documentclass{article}
 
-\usepackage{fancyhdr}
-\usepackage{hyperref}
+\usepackage{fancyhdr} \usepackage{hyperref}
 
 \pagestyle{fancy}
 
@@ -11,10 +10,16 @@
 \author{Noah Weninger \and Abram Hindle}
 
 \maketitle
-\tableofcontents
 
 \begin{abstract}
-    this is abstract
+    SuperCollider, a language for live coding and algorithmic synthesis of audio,
+    includes features for performing spectral analysis and manipulation of audio streams using the
+    Short-Time Fourier Transform (STFT). However, available spectral operations are limited to those
+    implemented individually as Unit Generators (UGens). Many basic operations exist and can be
+    composed to produce complex effects, however this process is tedious and leaves many of the
+    possible effects impossible to create. We present ScPy, a UGen which embeds Python scripts within
+    SuperCollider to extend the space of possible effects using the optimized vector operations
+    provided by the NumPy and SciPy libraries.
 \end{abstract}
 
 \section{Introduction}
@@ -27,6 +32,6 @@
 
 \section{Conclusion}
 
-\section{Bibilography}
+\section{Bibliography}
 
 \end{document}
