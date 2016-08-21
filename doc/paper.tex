@@ -1,3 +1,5 @@
+% vim: tw=99
+
 \documentclass{article}
 
 \usepackage{fancyhdr} \usepackage{hyperref}
@@ -6,30 +8,82 @@
 
 \begin{document}
 
-\title{ScPy -- A SuperCollider extension for performing numerical computation via embedded Python}
+\title{ScPy: A SuperCollider Extension for Performing Numerical Computation via Embedded Python}
+
 \author{Noah Weninger \and Abram Hindle}
 
 \maketitle
 
 \begin{abstract}
-    SuperCollider, a language for sound synthesis and algorithmic composition of audio,
-    supports a wide range of synthesis, effect and analysis algorithms. However, available
-    operations are limited to those implemented explicitly as Unit Generators (UGens). Since UGens
-    are written in C/C++ and loaded as plugins during the SuperCollider server boot process, it is
-    impossible to live code UGens, which limits the user to creating sound as a composition of
-    existing UGens during a performance. Many of the vector operations required for efficiently
-    creating complex audio effects are notably missing or tedious to use. To overcome this, we
-    present ScPy, a UGen which embeds Python within SuperCollider to enable the use of the
-    optimized vector operations provided by the NumPy and SciPy libraries.
+
+SuperCollider, a language for sound synthesis and algorithmic composition of audio, supports a wide
+range of synthesis, effect and analysis algorithms. However, available operations are limited to
+those implemented explicitly as Unit Generators (UGens). Since UGens are written in C/C++ and
+loaded as plugins during the SuperCollider server boot process, it is impossible to live code
+UGens, which limits the user to creating sound as a composition of existing UGens during a
+performance.  Many of the vector operations required for efficiently creating complex audio effects
+are notably missing or tedious to use. To overcome this, we present ScPy, a UGen which embeds
+Python within SuperCollider to enable the use of the optimized vector operations provided by the
+NumPy library.
+
 \end{abstract}
 
 \section{Introduction}
+
+Although a number of open-source projects which interface other languages with SuperCollider exist,
+they are primarily SuperCollider clients, which have features to control synths and send other
+automation messages.  One notable exception is OctaveSC, which embeds GNU Octave within
+SuperCollider.  However, it is designed primarily for performing operations on control rate data
+arrays and its author notes performance issues which prevent it from being used on audio rate data.
+
+One of the goals of this project is to enable more flexible experimentation with FFT and phase
+vocoder based operations.  SuperCollider contains a total of 32 built in phase vocoder operations,
+which provide the ability to produce many common effects. There are additionally some extra
+operations available as user created extensions. However, many conceivable effects are impossible.
+
+ScPy allows users to overcome these limitations. By embedding the Python programming language
+within SuperCollider, it is possible to do numerical processing operations which would be too slow
+to perform in real time with SuperCollider alone. Through access to the NumPy library, previously
+difficult or impossible phase vocoder operations become trivial.  Although our usage of this
+library for testing purposes has mostly focused on FFT based operations, support exists for passing
+arbitrary data buffers to Python, which can be used to process numerical data for many other
+purposes as well.
+
+It may seem as though embedding an interpreted language within an interpreted language could offer
+no performance advantage. There is certainly some performance hit when switching languages and
+transferring data. However, the biggest advantage comes not strictly from performance but from the
+diversity of operations which become available with highly optimized implementations. NumPy is used
+internally by ScPy for handling data arrays, so the entire NumPy library of mathematical functions
+comes at no cost.  Any other Python library can easily be imported as well. Limited experiments
+have been done with the SciPy library. It would also be possible to use Theano to do processing on
+the GPU for extra performance. Implementing an equivalent to these popular Python libraries in pure
+SuperCollider is certainly possible, but it would require a very large amount of work and would see
+little widespread adoption since SuperCollider is ultimately a niche language.
 
 \section{Literature Review}
 
 \section{Implementation}
 
+Use of ScPy is through two UGens: \texttt{Py} and \texttt{PyOnce}. Both have one required argument,
+a block of Python code. A map of variable names may optionally be provided to bind SuperCollider
+variables to Python variables.  Additionally, there is a \texttt{DoneAction} argument which
+specifies an action to occur in SuperCollider after the Python code has finished executing.
+
+Since UGens may only be used as part of a synth, \texttt{PyOnce} is provided as a wrapper which
+hides this detail from the user and allows the execution of Python code outside of a synth. It is
+useful for doing initialization work.  Since the current implementation executes Python code in a
+single global namespace, a typical usage patten is for state to be defined in a \texttt{PyOnce}
+block which is later accessed and modified in a \texttt{Py} block.
+
 \section{Evaluation}
+
+\section{Future Work}
+
+At the time of writing, ScPy only supports handling audio rate data via SuperCollider's
+\texttt{Buffer} objects. In order to make some use cases more ergonomic, ScPy could certainly be
+extended to support raw audio rate input. For example, this would make time domain audio data even
+simpler to work with than frequency domain data is currently. It would also enable
+SuperCollider's FFT UGen to be easily re-implemented in Python for greater flexibility.
 
 \section{Conclusion}
 
