@@ -1,36 +1,28 @@
-s.boot; // run this line first
+// transform any sound into a falling shephard tone
+// you'll need some sound going into SuperCollider's first 2 inputs.
+(s.waitForBoot {
+    var buf = { Buffer.alloc(s, 512) }.dup;
+    var hop = 1/4;
 
-// then, execute the block to perform setup.
-(
-    b = { Buffer.alloc(s,4096,1) }.dup;
-
-    // this runs the enclosed python code once,
-    // to define the processing function.
-    // if you change this function, just re-evaluate
-    // the block and the changes will be reflected
-    // immediately.
     PyOnce("
-        global bb # this is necessary to make it visible between calls
-        bb = BackBuffer(64)
-        def fn(x, time, mouse):
-            x = to_polar(x)
-            x.real = cos(x.real*mouse)*x.real # some weird operation
-            x = from_polar(x)
-            bb.push(x)
-            x = bb.get(random.randint(0, 64))
-            return x
-    ");
-)
+        pv = PhaseVocoder(hop)
 
-// finally, execute this block to start the synth.
-(
+        def fn(x, time):
+            x = pv.forward(x)
+            idx = indices(x.shape)[1]
+            x = pv.shift(x, lambda y:
+                y * (0.8 + mod(-time + 0.1*idx, 10)*0.045))
+            x = pv.backward(x)
+            return x
+    ", (hop:hop));
+
+    s.freeAll;
     {
-        var in = Saw.ar(32); // input is a sawtooth wave
-        var chain = FFT(b.collect(_.bufnum), in, hop:0.125);
-        var mouse = [MouseX.kr(1, 0), MouseY.kr(1, 0)];
+        var in = AudioIn.ar([1, 2]);
+        var x = FFT(buf.collect(_.bufnum), in, hop);
         Py("
-            out(x, fn(x, time, mouse))
-        ", (x:chain, time:Sweep.kr, mouse:mouse));
-        Out.ar(0, IFFT(chain).clip2(1));
-    }.play(s)
-)
+            out(x, fn(array(x), time))
+        ", (x:x, time:Sweep.kr));
+        Out.ar(0, IFFT(x));
+    }.play(s);
+})
