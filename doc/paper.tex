@@ -2,7 +2,7 @@
 
 \documentclass{article}
 
-\usepackage{fancyhdr} \usepackage{hyperref}
+\usepackage{fancyhdr} \usepackage{hyperref} \usepackage{listings}
 
 \pagestyle{fancy}
 
@@ -76,6 +76,13 @@ single global namespace, a typical usage patten is for state to be defined in a 
 block which is later accessed and modified in a \texttt{Py} block.
 
 \section{Evaluation}
+
+Example usage:\\
+This snippet will transform any input into an infinite falling Shepard tonerlike
+sound.
+\lstinputlisting[
+    basicstyle=\footnotesize\ttfamily,
+    firstline=3]{../test.sc}
 
 \section{Future Work}
 
