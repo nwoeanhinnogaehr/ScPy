@@ -2,7 +2,7 @@
 
 \documentclass{article}
 
-\usepackage{fancyhdr} \usepackage{hyperref} \usepackage{listings}
+\usepackage{fancyhdr} \usepackage{hyperref} \usepackage{listings} \usepackage{minted}
 
 \pagestyle{fancy}
 
@@ -76,21 +76,30 @@ the GPU for extra performance. Implementing an equivalent to these popular Pytho
 SuperCollider is certainly possible, but it would require a very large amount of work and would see
 little widespread adoption since SuperCollider is ultimately a niche language.
 
-\section{Implementation}
+\section{Usage}
 
 Use of ScPy is through two UGens: \texttt{Py} and \texttt{PyOnce}. Both have one required argument,
 a block of Python code. A map of variable names may optionally be provided to bind SuperCollider
-variables to Python variables.  Additionally, there is a \texttt{DoneAction} argument which
+variables to Python variables.  Additionally, there is an optional \texttt{DoneAction} argument which
 specifies an action to occur in SuperCollider after the Python code has finished executing.
+
+\begin{listing}[H] \inputminted[linenos=true]{SuperCollider}{../examples/template.sc}
+\caption{SuperCollider boilerplate for no-op FFT effect with ScPy.} \label{lst:boilerplate}
+\end{listing}
+
+When listing \ref{lst:boilerplate} is run, an anonymous synth is created which will take in audio
+from an external source, perform a STFT, process the spectral data with ScPy, perform an inverse
+STFT, then finally output the resulting audio. Lines 8-9 contain Python code defining the
+processing function where operations are to be inserted. Further examples will replace only those
+lines.
+
+\section{Implementation}
 
 Since UGens may only be used as part of a synth, \texttt{PyOnce} is provided as a wrapper which
 hides this detail from the user and allows the execution of Python code outside of a synth. It is
 useful for doing initialization work.  Since the current implementation executes Python code in a
 single global namespace, a typical usage patten is for state to be defined in a \texttt{PyOnce}
 block which is later accessed and modified in a \texttt{Py} block.
-
-\lstset{ caption={SuperCollider boilerplate for no-op FFT effect with ScPy.} }
-\lstinputlisting[ basicstyle=\footnotesize\ttfamily]{../examples/template.sc}
 
 ScPy is written mostly in C++, but with a small SuperCollider class library to connect the C++
 back-end, and a small Python library that provides some useful operations. Due to differences
@@ -104,10 +113,6 @@ Arguments passed through to the Python code can have one of many types, and ther
 information must be encoded as well. However, just passing the type of a variable is not enough to
 know what we can do with it, since we also want to know if it inherits from a class we can use.
 
-\section{Evaluation}
-
-
-
 \section{Future Work}
 
 At the time of writing, ScPy only supports handling audio rate data via SuperCollider's
@@ -115,8 +120,6 @@ At the time of writing, ScPy only supports handling audio rate data via SuperCol
 extended to support raw audio rate input. For example, this would make time domain audio data even
 simpler to work with than frequency domain data is currently. It would also enable SuperCollider's
 FFT UGen to be easily re-implemented in Python for greater flexibility.
-
-
 
 \section{Conclusion}
 
