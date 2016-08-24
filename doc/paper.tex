@@ -4,11 +4,13 @@
 
 \usepackage{fancyhdr} \usepackage{hyperref} \usepackage{listings} \usepackage{minted}
 
+\providecommand*{\listingautorefname}{Listing}
+
 \pagestyle{fancy}
 
 \begin{document}
 
-\title{ScPy: A SuperCollider Extension for Performing Numerical Computation via Embedded Python}
+\title{ScPy: A SuperCollider Extension for Perforeing Numerical Computation via Embedded Python}
 
 \author{Noah Weninger \and Abram Hindle}
 
@@ -89,7 +91,7 @@ specifies an action to occur in SuperCollider after the Python code has finished
     \label{lst:boilerplate}
 \end{listing}
 
-When listing \ref{lst:boilerplate} is run, an anonymous synth is created which will take in audio
+When \autoref{lst:boilerplate} is run, an anonymous synth is created which will take in audio
 from an external source, perform a STFT, process the spectral data with ScPy, perform an inverse
 STFT, then finally output the resulting audio. Lines 8-9 contain Python code defining the
 processing function where operations are to be inserted. Further examples will replace only those
@@ -116,6 +118,19 @@ Arguments passed through to the Python code can have one of many types, and ther
 information must be encoded as well. However, just passing the type of a variable is not enough to
 know what we can do with it, since we also want to know if it inherits from a class we can use.
 
+Since \texttt{FFT} objects in SuperCollider operate on a single channel only, they must be placed
+in \texttt{Array} objects to support multichannel audio. \texttt{Array}s can hold objects of any
+type, so it is natural to convert them to Python \texttt{list} objects, which have similar
+properties. However, this presents an interesting problem: multichannel \texttt{FFT} objects are
+then converted to \texttt{lists} of \texttt{ndarray} objects in Python. These are a bit more
+awkward to work with than basic \texttt{ndarray} objects, but can easily be converted using a call
+to the \texttt{array} function in Python. This can be seen in practice on line 16 of
+\autoref{lst:boilerplate}. Although it would be possible to do this conversion
+automatically, it is left out for the purpose of not introducing a feature simply to work around an
+incomplete implementation of \texttt{FFT} objects in SuperCollider. The current conversions will
+continue to function as intended if \texttt{FFT} objects are given multichannel support in the
+future.
+
 \begin{table}[H]
     \caption{Type correspondence between SuperCollider and Python}
     \begin{center}
@@ -123,7 +138,7 @@ know what we can do with it, since we also want to know if it inherits from a cl
             \hline
             SuperCollider data type & Python data type \\ \hline
             \texttt{Float} & \texttt{float} \\ \hline
-            \texttt{UGen} & \texttt{ndarray} of \texttt{float} \\ \hline
+            \texttt{UGen} (subclass of) & \texttt{ndarray} of \texttt{float} \\ \hline
             \texttt{Buffer} & \texttt{ndarray} of \texttt{float} \\ \hline
             \texttt{FFT} & \texttt{ndarray} of \texttt{complex} \\ \hline
             \texttt{Array} & \texttt{list} \\ \hline
