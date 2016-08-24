@@ -83,15 +83,18 @@ a block of Python code. A map of variable names may optionally be provided to bi
 variables to Python variables.  Additionally, there is an optional \texttt{DoneAction} argument which
 specifies an action to occur in SuperCollider after the Python code has finished executing.
 
-\begin{listing}[H] \inputminted[linenos=true]{SuperCollider}{../examples/template.sc}
-\caption{SuperCollider boilerplate for no-op FFT effect with ScPy.} \label{lst:boilerplate}
+\begin{listing}[H]
+    \inputminted[linenos=true]{SuperCollider}{../examples/template.sc}
+    \caption{SuperCollider boilerplate for no-op FFT effect with ScPy.}
+    \label{lst:boilerplate}
 \end{listing}
 
 When listing \ref{lst:boilerplate} is run, an anonymous synth is created which will take in audio
 from an external source, perform a STFT, process the spectral data with ScPy, perform an inverse
 STFT, then finally output the resulting audio. Lines 8-9 contain Python code defining the
 processing function where operations are to be inserted. Further examples will replace only those
-lines.
+lines. Line 16 contains the Python code to convert the spectrum into a NumPy array, process it,
+then write back the processed version.
 
 \section{Implementation}
 
@@ -112,6 +115,21 @@ Strings must be converted to an array of ASCII character codes, and prepended wi
 Arguments passed through to the Python code can have one of many types, and therefore type
 information must be encoded as well. However, just passing the type of a variable is not enough to
 know what we can do with it, since we also want to know if it inherits from a class we can use.
+
+\begin{table}[H]
+    \caption{Type correspondence between SuperCollider and Python}
+    \begin{center}
+        \begin{tabular}{| l | l |}
+            \hline
+            SuperCollider data type & Python data type \\ \hline
+            \texttt{Float} & \texttt{float} \\ \hline
+            \texttt{UGen} & \texttt{ndarray} of \texttt{float} \\ \hline
+            \texttt{Buffer} & \texttt{ndarray} of \texttt{float} \\ \hline
+            \texttt{FFT} & \texttt{ndarray} of \texttt{complex} \\ \hline
+            \texttt{Array} & \texttt{list} \\ \hline
+        \end{tabular}
+    \end{center}
+\end{table}
 
 \section{Future Work}
 
