@@ -1,9 +1,6 @@
-ifndef SC_EXT_DIR
-	SC_EXT_DIR := ~/.local/share/SuperCollider/Extensions
-endif
-
-CXX := clang++
-CXXFLAGS := -I/usr/include/SuperCollider/plugin_interface \
+SC_EXT_DIR ?= ~/.local/share/SuperCollider/Extensions
+CXX ?= clang++
+CXXFLAGS += -I/usr/include/SuperCollider/plugin_interface \
 	-I/usr/include/SuperCollider/common \
 	-I. \
 	`pkg-config --cflags python3` \
@@ -11,7 +8,7 @@ CXXFLAGS := -I/usr/include/SuperCollider/plugin_interface \
 	-Wall -Wextra -std=c++11 \
 	-D ABS_SOURCE_PATH=\"`pwd`\" \
 	-g
-LDFLAGS := `pkg-config --libs python3`
+LDFLAGS += `pkg-config --libs python3`
 OBJ_FILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
 all : scpy.so
