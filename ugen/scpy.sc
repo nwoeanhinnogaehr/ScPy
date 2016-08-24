@@ -34,3 +34,19 @@ PyOnce {
         { Py(code, args, doneAction) }.play
     }
 }
+PyFile {
+    *new { arg filename, args=(), doneAction=0;
+        var file = File(filename, "r");
+        var code = file.readAllString;
+        file.close;
+        Py(code, args, doneAction)
+    }
+}
+PyOnceFile {
+    *new { arg filename, args=(), doneAction=2;
+        var file = File(filename, "r");
+        var code = file.readAllString;
+        file.close;
+        PyOnce(code, args, doneAction)
+    }
+}
