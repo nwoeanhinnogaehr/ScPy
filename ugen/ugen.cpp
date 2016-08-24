@@ -121,6 +121,7 @@ readObject(Py* unit, int& idx)
             done(unit);
             return nullptr;
     }
+    return nullptr;
 }
 
 void
@@ -189,6 +190,7 @@ bufferReady(Py* unit, int& idx)
         case Type::Unsupported:
             return false;
     }
+    return false;
 }
 
 void
