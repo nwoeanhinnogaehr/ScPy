@@ -2,7 +2,13 @@
 
 \documentclass{article}
 
-\usepackage{fancyhdr} \usepackage{hyperref} \usepackage{listings} \usepackage{minted}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{minted}
+\usepackage[backend=bibtex]{biblatex}
+
+\addbibresource{references.bib}
 
 \providecommand*{\listingautorefname}{Listing}
 
@@ -10,7 +16,7 @@
 
 \begin{document}
 
-\title{ScPy: A SuperCollider Extension for Perforeing Numerical Computation via Embedded Python}
+\title{ScPy: A SuperCollider Extension for Performing Numerical Computation via Embedded Python}
 
 \author{Noah Weninger \and Abram Hindle}
 
@@ -100,15 +106,15 @@ then write back the processed version.
 
 \section{Implementation}
 
+ScPy is written mostly in C++, but with a small SuperCollider class library to connect the C++
+back-end, and a small Python library that provides some useful operations. Due to differences
+between these languages, connecting them was somewhat awkward in some cases.
+
 Since UGens may only be used as part of a synth, \texttt{PyOnce} is provided as a wrapper which
 hides this detail from the user and allows the execution of Python code outside of a synth. It is
 useful for doing initialization work.  Since the current implementation executes Python code in a
 single global namespace, a typical usage patten is for state to be defined in a \texttt{PyOnce}
 block which is later accessed and modified in a \texttt{Py} block.
-
-ScPy is written mostly in C++, but with a small SuperCollider class library to connect the C++
-back-end, and a small Python library that provides some useful operations. Due to differences
-between these languages, connecting them was somewhat awkward in some cases.
 
 One issue involves the process of passing data between SuperCollider and C++. Since UGens are
 designed to work primarily with data streams, adding support for passing in many types of data came
@@ -122,7 +128,7 @@ Since \texttt{FFT} objects in SuperCollider operate on a single channel only, th
 in \texttt{Array} objects to support multichannel audio. \texttt{Array}s can hold objects of any
 type, so it is natural to convert them to Python \texttt{list} objects, which have similar
 properties. However, this presents an interesting problem: multichannel \texttt{FFT} objects are
-then converted to \texttt{lists} of \texttt{ndarray} objects in Python. These are a bit more
+then converted to \texttt{list}s of \texttt{ndarray} objects in Python. These are a bit more
 awkward to work with than basic \texttt{ndarray} objects, but can easily be converted using a call
 to the \texttt{array} function in Python. This can be seen in practice on line 16 of
 \autoref{lst:boilerplate}. Although it would be possible to do this conversion
@@ -156,6 +162,6 @@ FFT UGen to be easily re-implemented in Python for greater flexibility.
 
 \section{Conclusion}
 
-\section{Bibliography}
+\printbibliography
 
 \end{document}
