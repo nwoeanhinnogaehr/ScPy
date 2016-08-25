@@ -109,6 +109,22 @@ processing function where operations are to be inserted. Further examples will r
 lines. Line 16 contains the Python code to convert the spectrum into a NumPy array, process it,
 then write back the processed version.
 
+\begin{listing}[H]
+    \begin{minted}[linenos=true]{python}
+pv = PhaseVocoder(hop)
+
+def fn(x):
+    x = pv.forward(x)
+    idx = indices(x.shape)[1]
+    x = pv.shift(x, lambda y:
+        y * (0.8 + mod(-time + 0.1*idx, 10)*0.045))
+    x = pv.backward(x)
+    return x
+    \end{minted}
+    \caption{A novel effect to transform any sound into a falling Shepard tone.}
+    \label{lst:shepard}
+\end{listing}
+
 \section{Implementation}\label{sec:implementation}
 
 ScPy is written mostly in C++, but with a small SuperCollider class library to connect the C++
