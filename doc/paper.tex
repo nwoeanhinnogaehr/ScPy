@@ -6,12 +6,13 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{minted}
-\usepackage{biblatex}
+\usepackage[style=numeric-comp]{biblatex}
 \usepackage{booktabs}
 
 \addbibresource{references.bib}
 
 \providecommand*{\listingautorefname}{Listing}
+\renewcommand{\sectionautorefname}{Section}
 
 \pagestyle{fancy}
 
@@ -37,19 +38,20 @@
 
 \end{abstract}
 
-\section{Introduction}
+\section{Introduction}\label{sec:introduction}
 
 Although a number of open-source projects which interface other languages with SuperCollider exist
-\cite{systemsinterfacingwithsc}~\cite{magnusson2011ixi}~\cite{orlarey2009faust}, they are mostly
-SuperCollider clients, which have features to control synths and send other automation messages.
-One notable exception is OctaveSC~\cite{octavesc}, which embeds GNU Octave within SuperCollider.
-However, it is designed primarily for performing operations on control rate data arrays and its
-author notes performance issues which prevent it from being used on audio rate data.
+\cite{systemsinterfacingwithsc,magnusson2011ixi,orlarey2009faust}, they are mostly SuperCollider
+clients, which have features to control synths and send other automation messages.  One notable
+exception is OctaveSC~\cite{octavesc}, which embeds GNU Octave within SuperCollider.  However, it
+is designed for performing operations on control rate data arrays and suffers from performance
+issues which prevent it from being used on audio rate data.
 
 One of the goals of this project is to enable more flexible experimentation with FFT and phase
 vocoder based operations. SuperCollider contains a total of 32 built in phase vocoder operations,
-which provide the ability to produce many common effects. There are additionally some extra
+which provide the ability to produce many simple effects. There are additionally some extra
 operations available as user created extensions. However, many conceivable effects are impossible.
+Some examples of novel effects can be found in~\autoref{sec:usage}.
 
 ScPy enables users to overcome these limitations. By embedding the Python programming language
 within SuperCollider, it is possible to do numerical processing operations which would be too slow
@@ -59,21 +61,22 @@ for testing purposes has mostly focused on FFT based operations, support exists 
 arbitrary data buffers to Python, which can be used to process numerical data for many other
 purposes as well.
 
-\section{Methodology}
+\section{Methodology}\label{sec:methodology}
 
 During the initial planning stage of the project, we wanted to essentially provide a set of
 fundamental operations on spectral data which could be composed together to perform any conceivable
-effect. It was also a requirement that these operations would be syntactically concise in order to
-enable easy and fast experimentation. Ideally, the system would be able to handle complex effects
-in real-time.
+effect. It was also a requirement that these operations would be syntactically concise to enable
+easy and fast experimentation. Ideally, the system would be able to handle complex effects in
+real-time.
 
 Although designing a domain-specific language (DSL)~\cite{van2000domain} for this task was briefly
 considered, we eventually decided to use Python for a number of reasons. First, Python includes an
 excellent C API which makes embedding it within other languages trivial in comparison to many other
 options.  Second, Python's syntax is easily readable and concise --- it clearly adheres to our
 goals. Finally, Python has a massive number of community built libraries for performant scientific
-and numerical computing. With a few small exceptions, these libraries contained every one of the
-fundamental spectral operations we could think of.
+and numerical computing. With a few small exceptions, which are clearly specific to spectral data
+such as the phase vocoder, these libraries contained every one of the fundamental operations we
+could think of.
 
 It may seem as though embedding an interpreted language within an interpreted language could offer
 no performance advantage. There is certainly some performance hit when switching languages and
@@ -86,7 +89,7 @@ the GPU for extra performance. Implementing an equivalent to these popular Pytho
 SuperCollider is certainly possible, but it would require a very large amount of work and would see
 little widespread adoption since SuperCollider is ultimately a niche language.
 
-\section{Usage}
+\section{Usage}\label{sec:usage}
 
 Use of ScPy is through two UGens: \texttt{Py} and \texttt{PyOnce}. Both have one required argument,
 a block of Python code. A map of variable names may optionally be provided to bind SuperCollider
@@ -106,7 +109,7 @@ processing function where operations are to be inserted. Further examples will r
 lines. Line 16 contains the Python code to convert the spectrum into a NumPy array, process it,
 then write back the processed version.
 
-\section{Implementation}
+\section{Implementation}\label{sec:implementation}
 
 ScPy is written mostly in C++, but with a small SuperCollider class library to connect the C++
 back-end, and a small Python library that provides some useful operations. Due to differences
@@ -142,7 +145,7 @@ future.
 \begin{table}[H]
     \caption{Type correspondence between SuperCollider and Python}
     \begin{center}
-        \begin{tabular}{cc}
+        \begin{tabular}{ll}
             \toprule
             SuperCollider type & Python type \\
             \midrule
