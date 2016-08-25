@@ -9,4 +9,4 @@ $ make install
 ```
 
 ## run
-Check out [test.sc](test.sc).
+Check out the [examples](examples).
