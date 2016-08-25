@@ -6,7 +6,8 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{minted}
-\usepackage[backend=bibtex]{biblatex}
+\usepackage{biblatex}
+\usepackage{booktabs}
 
 \addbibresource{references.bib}
 
@@ -24,25 +25,26 @@
 
 \begin{abstract}
 
-    SuperCollider, a language for sound synthesis and algorithmic composition of audio, supports a
-    wide range of synthesis, effect and analysis algorithms. However, available operations are
-    limited to those implemented explicitly as Unit Generators (UGens). Since UGens are written in
-    C/C++ and loaded as plugins during the SuperCollider server boot process, it is impossible to
-    live code UGens, which limits the user to creating sound as a composition of existing UGens
-    during a performance.  Many of the vector operations required for efficiently creating complex
-    audio effects are notably missing or tedious to use. To overcome this, we present ScPy, a UGen
-    which embeds Python within SuperCollider to enable the use of the optimized vector operations
-    provided by the NumPy library.
+    SuperCollider~\cite{wilson2011supercollider}, a language for sound synthesis and algorithmic
+    composition of audio, supports a wide range of synthesis, effect and analysis algorithms.
+    However, available operations are limited to those implemented explicitly as Unit Generators
+    (UGens). Since UGens are written in C/C++ and loaded as plugins during the SuperCollider server
+    boot process, it is impossible to live code UGens, which limits the user to creating sound as a
+    composition of existing UGens during a performance.  Many of the vector operations required for
+    efficiently creating complex audio effects are notably missing or tedious to use. To overcome
+    this, we present ScPy, a UGen which embeds Python within SuperCollider to enable the use of the
+    optimized vector operations provided by the NumPy library.
 
 \end{abstract}
 
 \section{Introduction}
 
-Although a number of open-source projects which interface other languages with SuperCollider exist,
-they are primarily SuperCollider clients, which have features to control synths and send other
-automation messages. One notable exception is OctaveSC, which embeds GNU Octave within
-SuperCollider. However, it is designed primarily for performing operations on control rate data
-arrays and its author notes performance issues which prevent it from being used on audio rate data.
+Although a number of open-source projects which interface other languages with SuperCollider exist
+\cite{systemsinterfacingwithsc}~\cite{magnusson2011ixi}~\cite{orlarey2009faust}, they are mostly
+SuperCollider clients, which have features to control synths and send other automation messages.
+One notable exception is OctaveSC~\cite{octavesc}, which embeds GNU Octave within SuperCollider.
+However, it is designed primarily for performing operations on control rate data arrays and its
+author notes performance issues which prevent it from being used on audio rate data.
 
 One of the goals of this project is to enable more flexible experimentation with FFT and phase
 vocoder based operations. SuperCollider contains a total of 32 built in phase vocoder operations,
@@ -65,13 +67,13 @@ effect. It was also a requirement that these operations would be syntactically c
 enable easy and fast experimentation. Ideally, the system would be able to handle complex effects
 in real-time.
 
-Although designing a domain-specific language (DSL) for this task was briefly considered, we
-eventually decided to use Python for a number of reasons. First, Python includes an excellent C API
-which makes embedding it within other languages trivial in comparison to many other options.
-Second, Python's syntax is easily readable and concise -- it clearly adheres to our goals. Finally,
-Python has a massive number of community built libraries for performant scientific and numerical
-computing. With a few small exceptions, these libraries contained every one of the fundamental
-spectral operations we could think of.
+Although designing a domain-specific language (DSL)~\cite{van2000domain} for this task was briefly
+considered, we eventually decided to use Python for a number of reasons. First, Python includes an
+excellent C API which makes embedding it within other languages trivial in comparison to many other
+options.  Second, Python's syntax is easily readable and concise --- it clearly adheres to our
+goals. Finally, Python has a massive number of community built libraries for performant scientific
+and numerical computing. With a few small exceptions, these libraries contained every one of the
+fundamental spectral operations we could think of.
 
 It may seem as though embedding an interpreted language within an interpreted language could offer
 no performance advantage. There is certainly some performance hit when switching languages and
@@ -99,7 +101,7 @@ specifies an action to occur in SuperCollider after the Python code has finished
 
 When \autoref{lst:boilerplate} is run, an anonymous synth is created which will take in audio
 from an external source, perform a STFT, process the spectral data with ScPy, perform an inverse
-STFT, then finally output the resulting audio. Lines 8-9 contain Python code defining the
+STFT, then finally output the resulting audio. Lines 8--9 contain Python code defining the
 processing function where operations are to be inserted. Further examples will replace only those
 lines. Line 16 contains the Python code to convert the spectrum into a NumPy array, process it,
 then write back the processed version.
@@ -140,14 +142,16 @@ future.
 \begin{table}[H]
     \caption{Type correspondence between SuperCollider and Python}
     \begin{center}
-        \begin{tabular}{| l | l |}
-            \hline
-            SuperCollider data type & Python data type \\ \hline
-            \texttt{Float} & \texttt{float} \\ \hline
-            \texttt{UGen} (subclass of) & \texttt{ndarray} of \texttt{float} \\ \hline
-            \texttt{Buffer} & \texttt{ndarray} of \texttt{float} \\ \hline
-            \texttt{FFT} & \texttt{ndarray} of \texttt{complex} \\ \hline
-            \texttt{Array} & \texttt{list} \\ \hline
+        \begin{tabular}{cc}
+            \toprule
+            SuperCollider type & Python type \\
+            \midrule
+            \texttt{Float} & \texttt{float} \\
+            (subclass of) \texttt{UGen} & \texttt{ndarray} of \texttt{float} \\
+            \texttt{Buffer} & \texttt{ndarray} of \texttt{float} \\
+            \texttt{FFT} & \texttt{ndarray} of \texttt{complex} \\
+            \texttt{Array} & \texttt{list} \\
+            \bottomrule
         \end{tabular}
     \end{center}
 \end{table}
@@ -162,6 +166,6 @@ FFT UGen to be easily re-implemented in Python for greater flexibility.
 
 \section{Conclusion}
 
-\printbibliography
+\printbibliography{}
 
 \end{document}
