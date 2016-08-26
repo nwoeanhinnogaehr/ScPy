@@ -8,8 +8,11 @@
 \usepackage{minted}
 \usepackage[style=numeric-comp]{biblatex}
 \usepackage{booktabs}
+\usepackage{graphicx}
 
 \addbibresource{references.bib}
+
+\graphicspath{{images/}}
 
 \providecommand*{\listingautorefname}{Listing}
 \renewcommand{\sectionautorefname}{Section}
@@ -50,8 +53,9 @@ issues which prevent it from being used on audio rate data.
 One of the goals of this project is to enable more flexible experimentation with FFT and phase
 vocoder based operations. SuperCollider contains a total of 32 built in phase vocoder operations,
 which provide the ability to produce many simple effects. There are additionally some extra
-operations available as user created extensions. However, many conceivable effects are impossible.
-Some examples of novel effects can be found in~\autoref{sec:usage}.
+operations available as user created extensions. However, many conceivable effects are impossible,
+including basic phase vocoder effects such as pitch shifting. Some examples of novel effects can
+be found in~\autoref{sec:usage}.
 
 ScPy enables users to overcome these limitations. By embedding the Python programming language
 within SuperCollider, it is possible to do numerical processing operations which would be too slow
@@ -68,6 +72,19 @@ fundamental operations on spectral data which could be composed together to perf
 effect. It was also a requirement that these operations would be syntactically concise to enable
 easy and fast experimentation. Ideally, the system would be able to handle complex effects in
 real-time.
+
+ScPy is unlike many New Instruments for Musical Expression (NIMEs) because it does not have the
+properties of any traditional instrument. However, it can still be considered a NIME because it
+ultimately is a tool to enhance musical expression, just with an unconventional method of
+interaction.  Dimension space analysis, as explored by Birnbaum et al.~\cite{birnbaum2005towards},
+can facilitate the comparison of use cases for NIMEs.
+
+\begin{figure}[h]
+\caption{NIME dimension space analysis for ScPy.}
+\vspace{1em}
+\includegraphics[scale=0.2]{nime-plot}
+\label{fig:nime}
+\end{figure}
 
 Although designing a domain-specific language (DSL)~\cite{van2000domain} for this task was briefly
 considered, we eventually decided to use Python for a number of reasons. First, Python includes an
@@ -116,13 +133,32 @@ pv = PhaseVocoder(hop)
 def fn(x):
     x = pv.forward(x)
     idx = indices(x.shape)[1]
-    x = pv.shift(x, lambda y:
-        y * (0.8 + mod(-time + 0.1*idx, 10)*0.045))
+    x = pv.shift(x, lambda freq:
+        freq * (0.8 + mod(-time + 0.1*idx, 10)*0.045))
     x = pv.backward(x)
     return x
     \end{minted}
-    \caption{A novel effect to transform any sound into a falling Shepard tone.}
+    \caption{A novel effect to transform any sound into a falling Shepard tone. This example makes
+    use of the phase vocoder \texttt{shift} operation, which applies a function to frequency, then
+    reorganizes the spectrum to move the new frequencies into the appropraite bins.}
     \label{lst:shepard}
+\end{listing}
+
+\begin{listing}[H]
+    \begin{minted}[linenos=true]{python}
+pv = PhaseVocoder(hop)
+
+def fn(x):
+    x = pv.forward(x)
+    x = pv.to_bin_offset(x)
+    x.imag = -x.imag
+    x = pv.from_bin_offset(x)
+    x = pv.backward(x)
+    return x
+    \end{minted}
+    \caption{An effect which inverts the frequency of each analysis bin across the center of
+    the bin, creating an unusual detuning effect.}
+    \label{lst:binflipper}
 \end{listing}
 
 \section{Implementation}\label{sec:implementation}
@@ -175,6 +211,13 @@ future.
     \end{center}
 \end{table}
 
+As shown in \autoref{lst:shepard} and \autoref{lst:binflipper}, ScPy includes a phase vocoder
+implemented in Python for performing frequency transformations. Interestingly, although all of
+SuperCollider's FFT operations are referred to as phase vocoder operation, there is actually no
+implementation of a phase vocoder to be found in SuperCollider at the time of writing. It is likely
+that a phase vocoder was once intended to be implemented, but the 32 so-called phase vocoder
+effects are simply transformations to the cartesian or polar representations of the spectrum.
+
 \section{Future Work}
 
 At the time of writing, ScPy only supports handling audio rate data via SuperCollider's
@@ -182,6 +225,12 @@ At the time of writing, ScPy only supports handling audio rate data via SuperCol
 extended to support raw audio rate input. For example, this would make time domain audio data even
 simpler to work with than frequency domain data is currently. It would also enable SuperCollider's
 FFT UGen to be easily re-implemented in Python for greater flexibility.
+
+Support for more SuperCollider types, such as events or strings could additionally be added.
+
+Creating a more generic extension which supports many languages would have a number of advantages.
+One option for implementing this would be to define a specification to communicate and share data
+with a generic UGen in a running SuperCollider instance.
 
 \section{Conclusion}
 
