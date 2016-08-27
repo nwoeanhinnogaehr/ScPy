@@ -68,8 +68,8 @@ for testing purposes has mostly focused on FFT based operations, support exists 
 arbitrary data buffers to Python, which can be used to process numerical data for many other
 purposes as well.
 
-ScPy is developed and maintained as an open-source project under the GPLv3 license. The
-latest code and documentation is available on GitHub\footnote{\url{https://github.com/nwoeanhinnogaehr/ScPy}}.
+ScPy is developed and maintained as an open-source project under the GPLv3 license. The latest code
+and documentation is available on GitHub\footnote{\url{https://github.com/nwoeanhinnogaehr/ScPy}}.
 
 \section{Methodology}\label{sec:methodology}
 
@@ -140,7 +140,7 @@ the Python code has finished executing.
 \end{listing}
 
 When \autoref{lst:boilerplate} is run, an anonymous synth is created which will take in audio
-from an external source, perform a STFT, process the spectral data with ScPy, perform an inverse
+from an external source, perform an STFT, process the spectral data with ScPy, perform an inverse
 STFT, then finally output the resulting audio. Lines 8--9 contain Python code defining the
 processing function where operations are to be inserted. Further examples will replace only those
 lines. Line 16 contains the Python code to convert the spectrum into a NumPy array, process it,
