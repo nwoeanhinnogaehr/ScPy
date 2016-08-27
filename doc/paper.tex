@@ -18,6 +18,9 @@
 \renewcommand{\sectionautorefname}{Section}
 
 \pagestyle{fancy}
+\lhead{\leftmark}
+\chead{}
+\rhead{}
 
 \begin{document}
 
@@ -65,6 +68,9 @@ for testing purposes has mostly focused on FFT based operations, support exists 
 arbitrary data buffers to Python, which can be used to process numerical data for many other
 purposes as well.
 
+ScPy is developed and maintained as an open-source project under the GPLv3 license. The
+latest code and documentation is available on GitHub\footnote{\url{https://github.com/nwoeanhinnogaehr/ScPy}}.
+
 \section{Methodology}\label{sec:methodology}
 
 During the initial planning stage of the project, we wanted to essentially provide a set of
@@ -108,10 +114,12 @@ little widespread adoption since SuperCollider is ultimately a niche language.
 
 \section{Usage}\label{sec:usage}
 
-Use of ScPy is through two UGens: \texttt{Py} and \texttt{PyOnce}. Both have one required argument,
-a block of Python code. A map of variable names may optionally be provided to bind SuperCollider
-variables to Python variables.  Additionally, there is an optional \texttt{DoneAction} argument which
-specifies an action to occur in SuperCollider after the Python code has finished executing.
+Use of ScPy is through the classes \texttt{Py} and \texttt{PyOnce}. \texttt{Py} is used for
+processing real-time data, and \texttt{PyOnce} is used for doing initialization or other one time
+processing. Both have one required argument, a block of Python code. A map of variable names may
+optionally be provided to bind SuperCollider variables to Python variables.  Additionally, there is
+an optional \texttt{DoneAction} argument which specifies an action to occur in SuperCollider after
+the Python code has finished executing.
 
 \begin{listing}[H]
     \inputminted[linenos=true]{SuperCollider}{../examples/template.sc}
@@ -140,7 +148,7 @@ def fn(x):
     \end{minted}
     \caption{A novel effect to transform any sound into a falling Shepard tone. This example makes
     use of the phase vocoder \texttt{shift} operation, which applies a function to frequency, then
-    reorganizes the spectrum to move the new frequencies into the appropraite bins.}
+    reorganizes the spectrum to move the new frequencies into the appropriate bins.}
     \label{lst:shepard}
 \end{listing}
 
@@ -169,7 +177,7 @@ between these languages, connecting them was somewhat awkward in some cases.
 
 Since UGens may only be used as part of a synth, \texttt{PyOnce} is provided as a wrapper which
 hides this detail from the user and allows the execution of Python code outside of a synth. It is
-useful for doing initialization work.  Since the current implementation executes Python code in a
+useful for doing initialization work. Since the current implementation executes Python code in a
 single global namespace, a typical usage patten is for state to be defined in a \texttt{PyOnce}
 block which is later accessed and modified in a \texttt{Py} block.
 
@@ -213,10 +221,11 @@ future.
 
 As shown in \autoref{lst:shepard} and \autoref{lst:binflipper}, ScPy includes a phase vocoder
 implemented in Python for performing frequency transformations. Interestingly, although all of
-SuperCollider's FFT operations are referred to as phase vocoder operation, there is actually no
-implementation of a phase vocoder to be found in SuperCollider at the time of writing. It is likely
-that a phase vocoder was once intended to be implemented, but the 32 so-called phase vocoder
-effects are simply transformations to the cartesian or polar representations of the spectrum.
+SuperCollider's FFT operations are referred to as phase vocoder operations, there is actually no
+implementation of a phase vocoder to be found in the SuperCollider code base at the time of
+writing. It is likely that a phase vocoder was once intended to be implemented, but the 32
+so-called phase vocoder effects are simply transformations to the Cartesian or polar
+representations of the spectrum.
 
 \section{Future Work}
 
@@ -226,13 +235,18 @@ extended to support raw audio rate input. For example, this would make time doma
 simpler to work with than frequency domain data is currently. It would also enable SuperCollider's
 FFT UGen to be easily re-implemented in Python for greater flexibility.
 
-Support for more SuperCollider types, such as events or strings could additionally be added.
+Support for more SuperCollider types, such as events or strings, could be added to open up ScPy to
+more use cases.
+
+Multi-core processing support would allow for many more sounds to be processed in real-time.
 
 Creating a more generic extension which supports many languages would have a number of advantages.
 One option for implementing this would be to define a specification to communicate and share data
 with a generic UGen in a running SuperCollider instance.
 
-\section{Conclusion}
+Although extending SuperCollider was the focus of this project, similar improvements could be made
+to the CSound\cite{boulanger2000csound,lazzarini2005extensions}, Chuck\cite{wang2008chuck} or
+Faust\cite{orlarey2009faust} environments as well.
 
 \printbibliography{}
 
