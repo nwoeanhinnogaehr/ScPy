@@ -2,7 +2,7 @@
     var buf = { Buffer.alloc(s, 512) }.dup;
     var hop = 1/4;
 
-    s.freeAll; // stop previous versions
+    s.freeAll; // stop previous versions of the synth
 
     PyOnce("
         def fn(x):
