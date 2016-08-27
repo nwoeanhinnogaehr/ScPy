@@ -98,7 +98,7 @@ excellent C API which makes embedding it within other languages trivial in compa
 options.  Second, Python's syntax is easily readable and concise --- it clearly adheres to our
 goals. Finally, Python has a massive number of community built libraries for performant scientific
 and numerical computing. With a few small exceptions, which are clearly specific to spectral data
-such as the phase vocoder, these libraries contained every one of the fundamental operations we
+(such as the phase vocoder), these libraries contained every one of the fundamental operations we
 could think of.
 
 It may seem as though embedding an interpreted language within an interpreted language could offer
@@ -110,7 +110,7 @@ comes at no cost.  Any other Python library can easily be imported as well. Limi
 have been done with the SciPy library. It would also be possible to use Theano to do processing on
 the GPU for extra performance. Implementing an equivalent to these popular Python libraries in pure
 SuperCollider is certainly possible, but it would require a very large amount of work and would see
-little widespread adoption since SuperCollider is ultimately a niche language.
+no adoption outside of the audio computing community.
 
 \section{Usage}\label{sec:usage}
 
@@ -120,6 +120,18 @@ processing. Both have one required argument, a block of Python code. A map of va
 optionally be provided to bind SuperCollider variables to Python variables.  Additionally, there is
 an optional \texttt{DoneAction} argument which specifies an action to occur in SuperCollider after
 the Python code has finished executing.
+
+\begin{listing}[H]
+    \begin{minted}[linenos=true]{SuperCollider}
+(PyOnce("
+    # comments in Python have different syntax!
+    print('Hello from Python!')
+    print('x is', x)
+", (x: 62)))
+    \end{minted}
+    \caption{Hello world with ScPy.}
+    \label{lst:helloworld}
+\end{listing}
 
 \begin{listing}[H]
     \inputminted[linenos=true]{SuperCollider}{../examples/template.sc}
