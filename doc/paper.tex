@@ -111,7 +111,7 @@ developed by Birnbaum et al.\ can be seen in~\autoref{fig:nime}.
                     Distribution in Space,
                     Role of Sound}
             \tkzKiviatLine[thick,color=blue,mark=none,
-                           fill=blue!20,opacity=.5](4,4,1.5,1.5,0.5,0.5,3)
+                           fill=blue,opacity=.5](4,4,1.5,1.5,0.5,0.5,3)
         \end{tikzpicture}
     \end{center}
 \end{figure}
@@ -139,11 +139,8 @@ challenges. Case studies of two live coding environments are included: Slub and 
 the just in time library.
 
 ScPy can be used for live coding of audio effects, similarly to how the environments studied in
-this paper can be used to live code synths and pattens. However, at the time of writing one issue
-is blocking ScPy from realistically being used for live coding performances: the Python global
-environment can be put into a state which prevents the code from executing without throwing an
-exception, which could halt a performance in its tracks if the programmer made one of a number of
-errors. This may be avoidable if more advanced error detection is implemented in the future.
+this paper can be used to live code synths and pattens. More details about how ScPy was designed to
+facilitate this can be found in \autoref{sec:methodology}.
 
 Live coding presents an interesting contrast to contemporary music with many clear differences.
 Nilson~\cite{nilson2007live} presents a review of the challenges of live coding
@@ -266,6 +263,41 @@ Since the ixi lang is similar to ScPy in many ways, many of the design choices m
 also appropriate in ScPy. Additionally, lessons learned from the user feedback for ixi lang could
 potentially be used to improve usability of ScPy.
 
+Laroche and Dolson~\cite{laroche1999improved} present an improvement to the phase vocoder which
+aims to prevent the ``phasiness'' problem where different parts of a sound lose their phase
+coherence, as well as provide a significant decrease in computational cost. The paper recognizes
+that there are two types of phase coherence that must be preserved in any STFT based algorithm to
+ensure that the reproduced sound is without artifacts: horizontal and vertical. The basic phase
+vocoder algorithm is built to preserve horizontal phase coherence --- but it does so at the expense
+of vertical phase coherence. To remedy this, they build on prior work by presenting two new
+phase-locking techniques.
+
+Similar techniques~\cite{laroche1999new} enable new phase vocoder techniques that enable
+exotic audio effects. The core of the techniques is a peak detection process followed by peak
+shifting. Since these new techniques operate on peaks, the standard phase vocoder algorithm can be
+simplified to not require phase unwrapping, reducing computational complexity. Additionally, they
+produce better quality output than the standard phase vocoder algorithm because of implicit
+phase-locking.
+
+The phase vocoder currently implemented in ScPy uses the standard algorithm. Future experiments
+could implement many of the proposed modifications to the phase vocoder to improve sound quality.
+
+Bradford et al.\ have published a number of works detailing the sliding
+DFT~\cite{bradford2005sliding} and associated sliding phase vocoder~\cite{bradford2007sliding}.
+These new algorithms are efficient implementations for the STFT with a hop size of a single sample.
+Although such a small hop size would be impossible to process in real time using current hardware
+and the STFT, the sliding DFT makes it possible using consumer GPU
+hardware~\cite{bradford2011real}. The sliding phase vocoder additionally has a number of advantges
+over traditional implementations. Quality is greatly improved (at a high computational cost). Each
+analysis bin can hold any frequency, essentially making the spectrum more of a generic oscillator
+bank than a traditional spectrum. This simplifies effects such as pitch shifting to a simple vector
+multiplication in the frequency domain. Additionally, since the time resolution is so fine, effects
+that require time modulation such as FM or AM can now be performed in the frequency domain.
+
+Using Theano, the sliding DFT and sliding phase vocoder could be implemented easily in ScPy. It
+remains unknown if it will be possible to run them in real time, but even if not this future
+extension could add the possibility to experiment with many novel effects.
+
 \section{Methodology}\label{sec:methodology}
 
 During the initial planning stage of the project, we wanted to essentially provide a set of
@@ -274,14 +306,14 @@ effect. It was also a requirement that these operations would be syntactically c
 easy and fast experimentation. Ideally, the system would be able to handle complex effects in
 real-time.
 
-Although designing a domain-specific language (DSL)~\cite{van2000domain} for this task was briefly
-considered, we eventually decided to use Python for a number of reasons. First, Python includes an
-excellent C API which makes embedding it within other languages trivial in comparison to many other
-options. Second, Python's syntax is easily readable and concise --- it clearly adheres to our
-goals. Finally, Python has a massive number of community built libraries for performant scientific
-and numerical computing. With a few small exceptions, which are clearly specific to spectral data
-(such as the phase vocoder), these libraries contained every one of the fundamental operations we
-could think of.
+Although designing a domain-specific language for this task was briefly considered, we eventually
+decided to use Python for a number of reasons. First, Python includes an excellent C API which
+makes embedding it within other languages trivial in comparison to many other options. Second,
+Python's syntax is easily readable and concise --- it clearly adheres to our goals. Finally, Python
+has a massive number of community built libraries for performant scientific and numerical
+computing. With a few small exceptions, which are clearly specific to spectral data (such as the
+phase vocoder), these libraries contained every one of the fundamental operations we could think
+of.
 
 It may seem as though embedding an interpreted language within an interpreted language could offer
 no performance advantage. There is certainly some performance hit when switching languages and
@@ -296,7 +328,7 @@ no adoption outside of the audio computing community.
 
 In order to facilitate the use of ScPy in live coding performances, many errors are ignored or
 handled in a way that can be easily recovered from. In particular, floating point errors such as
-division by zero or other invalid operations are ignored. Special values such as infinity or NAN
+division by zero or other invalid operations are ignored. Special values such as infinity or NaN
 are replaced with zeros. This is done because SuperCollider has poor handling of these special
 values and in some cases will crash if they are found. Python exceptions are printed to the
 SuperCollider post window, where they can easily be examined and corrected by the user.
@@ -376,6 +408,32 @@ def fn(x):
 
 \section{Implementation}\label{sec:implementation}
 
+\begin{figure}[ht]
+    \caption{A high level overview of data flow and processing.}
+    \begin{center}
+        \begin{tikzpicture}[
+            every matrix/.style={ampersand replacement=\&,column sep=2cm,row sep=2cm},
+            sink/.style={draw,thick,rounded corners,fill=green!20,inner sep=.3cm},
+            process/.style={draw,thick,rounded corners,fill=blue!20,inner sep=.3cm},
+            datastore/.style={draw,thick,inner sep=.3cm},
+            to/.style={->,>=stealth',shorten >=1pt,semithick},
+            both/.style={<->,>=stealth',shorten >=1pt,semithick},
+            every node/.style={align=center}]
+
+            \matrix{\node[sink] (sc) {SuperCollider}; \\
+                    \node[datastore] (objects) {buffer}; \& \node[process] (scpy) {ScPy}; \\
+                    \& \node[sink] (py) {Python}; \\
+            };
+
+            \draw[to] (sc) -| node[near end,right] {next()} (scpy);
+            \draw[to] (objects) |- node[near start,left] {data pointer} (py);
+            \draw[both] (objects) -- node[midway,left] {copy data} (sc);
+            \draw[to] (scpy) -- node[midway,right] {execute()} (py);
+            \draw[to] (scpy) -- node[midway,above] {update()} (objects);
+        \end{tikzpicture}
+    \end{center}
+\end{figure}
+
 ScPy is written mostly in C++, but with a small SuperCollider class library to connect the C++
 back-end, and a small Python library that provides some useful operations. Due to differences
 between these languages, connecting them was somewhat awkward in some cases.
@@ -429,32 +487,6 @@ mutability. In practice, NumPy accepts a one element \texttt{ndarray} almost any
         \end{tabular}
     \end{center}
 \end{table}
-
-\begin{figure}[ht]
-    \caption{A high level overview of data flow and processing.}
-    \begin{center}
-        \begin{tikzpicture}[
-            every matrix/.style={ampersand replacement=\&,column sep=2cm,row sep=2cm},
-            sink/.style={draw,thick,rounded corners,fill=green!20,inner sep=.3cm},
-            process/.style={draw,thick,rounded corners,fill=blue!20,inner sep=.3cm},
-            datastore/.style={draw,thick,inner sep=.3cm},
-            to/.style={->,>=stealth',shorten >=1pt,semithick},
-            both/.style={<->,>=stealth',shorten >=1pt,semithick},
-            every node/.style={align=center}]
-
-            \matrix{\node[sink] (sc) {SuperCollider}; \\
-                    \node[datastore] (objects) {buffer}; \& \node[process] (scpy) {ScPy}; \\
-                    \& \node[sink] (py) {Python}; \\
-            };
-
-            \draw[to] (sc) -| node[near end,right] {next()} (scpy);
-            \draw[to] (objects) |- node[near start,left] {data pointer} (py);
-            \draw[both] (objects) -- node[midway,left] {copy data} (sc);
-            \draw[to] (scpy) -- node[midway,right] {execute()} (py);
-            \draw[to] (scpy) -- node[midway,above] {update()} (objects);
-        \end{tikzpicture}
-    \end{center}
-\end{figure}
 
 As shown in \autoref{lst:shepard} and \autoref{lst:binflipper}, ScPy includes a phase vocoder
 implemented in Python for performing frequency transformations. Interestingly, although all of
