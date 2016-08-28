@@ -71,8 +71,10 @@ for testing purposes has mostly focused on FFT based operations, support exists 
 arbitrary data buffers to Python, which can be used to process numerical data for many other
 purposes as well.
 
-ScPy is developed and maintained as an open-source project under the GPLv3 license. The latest code
-and documentation is available on GitHub\footnote{\url{https://github.com/nwoeanhinnogaehr/ScPy}}.
+ScPy is developed and maintained as an open-source project under the GPLv3 license. The latest
+code, documentation, and issues are available on
+GitHub\footnote{\url{https://github.com/nwoeanhinnogaehr/ScPy}}. Contributions to the project are
+welcome.
 
 \section{Literature Review}\label{sec:lit}
 
@@ -306,6 +308,10 @@ effect. It was also a requirement that these operations would be syntactically c
 easy and fast experimentation. Ideally, the system would be able to handle complex effects in
 real-time.
 
+The choice of SuperCollider was largely because it is one of the most widely used audio programming
+environments. Using SuperCollider also enabled the reuse of many parts of its codebase. Since it
+already has STFT based operations, it was a good target for extension purposes in that area.
+
 Although designing a domain-specific language for this task was briefly considered, we eventually
 decided to use Python for a number of reasons. First, Python includes an excellent C API which
 makes embedding it within other languages trivial in comparison to many other options. Second,
@@ -371,6 +377,13 @@ A special function, \texttt{out}, is provided to mutate data in SuperCollider bu
 variable which is bound to a \texttt{Buffer} or \texttt{FFT} object and a new value. The buffer is
 modified in place to hold the new data.
 
+Complex numbers are used extensively, even to represent non-Cartesian data such as polar
+coordinates or phase vocoder bins in ScPy. In polar form, the real and imaginary parts represent
+magnitude and phase, respectively. Similarly for the phase vocoder, real and imaginary parts
+represent magnitude and frequency. This is done to take advantage of the limited data types
+available in NumPy and relative convenience of working with complex numbers as opposed to tuples or
+classes. Future work could extend NumPy to give more descriptive names to these data fields.
+
 \begin{listing}[ht]
     \begin{minted}[linenos=true]{python}
 pv = PhaseVocoder(hop)
@@ -396,7 +409,7 @@ pv = PhaseVocoder(hop)
 def fn(x):
     x = pv.forward(x)
     x = pv.to_bin_offset(x)
-    x.imag = -x.imag
+    x.imag = -x.imag # imaginary part holds frequency
     x = pv.from_bin_offset(x)
     x = pv.backward(x)
     return x
@@ -450,7 +463,10 @@ with a number of challenges. Essentially, all data must be serialized into an ar
 Strings must be converted to an array of ASCII character codes, and prepended with their length.
 Arguments passed through to the Python code can have one of many types, and therefore type
 information must be encoded as well. However, just passing the type of a variable is not enough to
-know what we can do with it, since we also want to know if it inherits from a class we can use.
+know what we can do with it, since we also want to know if it inherits from a class we can use. The
+encoding and decoding implementation is unfortunately fairly complex, but creating a UGen with
+inputs this complicated was likely not considered during the design of SuperCollider, so some
+friction was to be expected in this area.
 
 Since \texttt{FFT} objects in SuperCollider operate on a single channel only, they must be placed
 in \texttt{Array} objects to support multichannel audio. \texttt{Array}s can hold objects of any
@@ -518,6 +534,11 @@ to the CSound~\cite{boulanger2000csound,lazzarini2005extensions}, Chuck~\cite{wa
 Faust~\cite{orlarey2009faust} environments as well. It may be desirable to completely separate the
 embedded language from the host, in order to allow easier interoperation and a cleaner
 implementation.
+
+Throughout~\autoref{sec:lit}, articles are discussed which contain processing techniques that could
+be used in ScPy. Although implementations of many of these techniques are likely to become a part
+of ScPy in the future, there is no obstacle to the reader implementing them as Python libraries
+usable by ScPy or even as open-source contributions to the project.
 
 \newpage\printbibliography{}
 
