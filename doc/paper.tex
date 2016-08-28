@@ -53,7 +53,7 @@ Although a number of open-source projects which interface other languages with S
 \cite{systemsinterfacingwithsc,magnusson2011ixi,orlarey2009faust}, they are mostly SuperCollider
 clients, which have features to control synths and send other automation messages. One notable
 exception is OctaveSC~\cite{octavesc}, which embeds GNU Octave within SuperCollider. However, it
-is designed for performing operations on control rate data arrays and suffers from performance
+is designed for performing operations on control rate data matrices and suffers from performance
 issues which prevent it from being used on audio rate data.
 
 One of the goals of this project is to enable more flexible experimentation with FFT and phase
@@ -129,79 +129,6 @@ The code in this paper was used as a reference for the phase vocoder implementat
 Additionally, some of the extra techniques mentioned could improve the quality or flexibility of
 the implementation in the future.
 
-Collins et al.~\cite{collins2003live} present an introduction to the field of live coding, where
-code to generate sound is written live during a performance, often on a laptop computer. Although
-the use graphical programming environments such as Reaktor, Pure Data, or MAX/MSP in live
-performances is in some sense live coding, the paper focuses on the use of text based programming
-environments. Many of the pros and cons of live coding are presented. Although live coding adds
-some very interesting new possibilities to live music performance, it is not without it's
-challenges. Case studies of two live coding environments are included: Slub and SuperCollider with
-the just in time library.
-
-ScPy can be used for live coding of audio effects, similarly to how the environments studied in
-this paper can be used to live code synths and pattens. More details about how ScPy was designed to
-facilitate this can be found in \autoref{sec:methodology}.
-
-Live coding presents an interesting contrast to contemporary music with many clear differences.
-Nilson~\cite{nilson2007live} presents a review of the challenges of live coding
-practice. While some argue that live coding must be performed live in front of an
-audience, an alternate perspective suggests that time constraints are not necessary and that the
-practice can refer to any improvisational music created by programming. The practice of live coding
-is still quite young --- it is mentioned that professional violinists will typically have practiced
-for 10000 hours, where as an email survey of live coders revealed most had dedicated about 100
-hours. Of course, the prerequisite knowledge for live coding may be higher; many live coders have
-extensive programming experience. Another thing mentioned is the high level of abstraction offered
-by live coding creates a large startup time for producing meaningful output from a blank slate.
-Additionally, many exercises are presented for improving one's live coding ability.
-
-The ideas in Nilson's paper shed light on some of the challenges faced in this project.
-One such challenge is the amount of writing required to produce an interesting result from a blank
-slate. We intend to minimise this by providing many effect primitives and composition
-mechanisms. However, it will be important to ensure the language is accessible to ensure it can be
-quickly learned to a level of expertise where lack of technical knowledge is not an impediment.
-
-While the Fourier transform is by far the most commonly used technique for spectral manipulation in
-digital audio effects, there exist numerous other transformations which may be useful as well to
-achieve certain audio effects. One such technique is the Mellin transform, described in a audio
-effects context by De Sena and Rocchesso~\cite{de2004fast}. The Mellin transform has a scale
-invariance property that is analogous to the shift invariance property of the Fourier transform. It
-can be computed quickly by applying two extra steps before doing a Fourier transform: exponential
-time warping and exponential multiplication. A few simple audio effects are presented using the
-Mellin transform, time stretching, filtering and random phase deviation (whisperization).
-
-As the Mellin transform can be implemented simply as an extension to the Fourier transform, it
-should be fairly easy to add support for it in ScPy, and it will hopefully enable the use of
-some different audio effects than can be achieved easily with the Fourier transform. However, the
-paper mentions that a short-time Mellin transform has not been attempted, so some further work may
-need to be done in that area first.
-
-Domain-Specific Languages (DSLs) are small programming languages designed for use in a specific
-problem domain. They often lack general purpose programming constructs and have a syntax which is
-very concise for describing programs in their domain. Van Deursen et al.~\cite{van2000domain}
-present a survey of available DSL literature, along with the pros and cons of using a DSL, example
-DSLs, design methodology and implementation approaches. The biggest advantage of DSLs is that they
-enable expression of solutions in a way that is common for the problem domain. However, they can be
-costly to develop and difficult to design. Implementation techniques include the classical approach
-of interpretation or compilation, embedded languages / domain-specific libraries, preprocessing, or
-compiler extension. Additionally, the references of the paper each include a short summary.
-
-This review reveals many of the possible options for the DSL used within the project. Although we
-decided not to design a DSL for our project, analyzing the design and implementation techniques
-presented here will be helpful for future work in this area.
-
-Klingbeil~\cite{klingbeil2005software} describes the techniques used in a high quality graphical
-spectral editing and resynthesis program called SPEAR\@. The FFT analysis is done taking into
-account the fundamental frequency of the sound to analyze, so that the transform can be optimized
-to accurately capture as many partials as possible. Spectral peaks are then selected and very quiet
-peaks are discarded. A linear prediction method is used to follow the peaks over time. The data
-structure for storage of spectral data involves division of time into a number of frames which keep
-track of which partials are active during that time, so that the search for a specific partial can
-be narrowed. User interface design choices are also covered in detail.
-
-Although the interface and granularity of SPEAR differs significantly from those in project, the
-techniques for high quality resynthesis presented should prove useful for improving the quality of
-the sound output.
-
 Keiler and Sylvain~\cite{keiler2002survey} present a survey of 6 techniques for accurate analysis
 of stationary sounds. The first method, plain FFT, uses a Hann window and assumes the frequencies
 of the sinusoids at centered within each bin. Parabolic interpolation notices that the shape of a
@@ -231,37 +158,6 @@ during the morphing process. The method allows the use of different kernel funct
 different kinds of morphing. These include \textit{Cross-fade}, \textit{Heat equation}, and
 \textit{Harmonic integrity}. The morphing technique is implemented using a phase vocoder. These
 techniques could be implemented in Python as a future extension to ScPy.
-
-As Python is an easily extendible general purpose language, it has applications in many scientific
-fields. Glover et al.~\cite{glover2011python} present a discussion of the use of Python for audio
-signal processing. They note that while audio processing libraries exist for many languages,
-scripting languages such as Python or MATLAB see widespread adoption because of the speed at which
-prototypes can be built. General purpose Python libraries such as NumPy, SciPy and Matplotlib
-include many essential functions for audio processing, such as file IO, Fourier transforms, signal
-processing and interpolation. There are additionally more specific libraries such as Simpl, a
-sinusoidal modelling library, and Modal, an onset detection library. Any of these libraries can
-easily be used within ScPy simply by installing and importing them.
-
-Another open-source Python library which could be used in ScPy is librosa~\cite{mcfee2015librosa}
-by McFee et al.\ librosa is a music signal analysis library designed to help transition music
-information retrieval (MIR) researchers into using Python, as well as make MIR techniques readily
-available to all Python programmers.\ librosa's core design choices and conventions are documented
-in detail to inspire future library authors to follow similarly good coding practice. As well as
-standard audio analysis functions, librosa also includes support for effects and audio IO.\@
-
-librosa has quite an extensive list of features and would likely cover all of the audio related
-functionality which is missing from NumPy. It can be used with ScPy simply by installing and importing
-it.
-
-The ixi lang~\cite{magnusson2011ixi} is a live coding language. It is implemented as an interpreter
-built in SuperCollider, a choice which allows for SuperCollider and ixi lang code to be mixed
-together in a similar manner to ScPy. The ixi lang is built to reduce the startup time in a live
-coding performance and enable faster musical experimentation through syntax more concise than
-SuperCollider. The paper also contains user feedback on the usability of the ixi lang.
-
-Since the ixi lang is similar to ScPy in many ways, many of the design choices made in ixi lang are
-also appropriate in ScPy. Additionally, lessons learned from the user feedback for ixi lang could
-potentially be used to improve usability of ScPy.
 
 Laroche and Dolson~\cite{laroche1999improved} present an improvement to the phase vocoder which
 aims to prevent the ``phasiness'' problem where different parts of a sound lose their phase
@@ -297,6 +193,110 @@ that require time modulation such as FM or AM can now be performed in the freque
 Using Theano, the sliding DFT and sliding phase vocoder could be implemented easily in ScPy. It
 remains unknown if it will be possible to run them in real time, but even if not this future
 extension could add the possibility to experiment with many novel effects.
+
+Klingbeil~\cite{klingbeil2005software} describes the techniques used in a high quality graphical
+spectral editing and resynthesis program called SPEAR\@. The FFT analysis is done taking into
+account the fundamental frequency of the sound to analyze, so that the transform can be optimized
+to accurately capture as many partials as possible. Spectral peaks are then selected and very quiet
+peaks are discarded. A linear prediction method is used to follow the peaks over time. The data
+structure for storage of spectral data involves division of time into a number of frames which keep
+track of which partials are active during that time, so that the search for a specific partial can
+be narrowed. User interface design choices are also covered in detail.
+
+Although the interface and granularity of SPEAR differs significantly from those in ScPy, the
+techniques for high quality resynthesis presented should prove useful for improving the quality of
+the sound output.
+
+While the Fourier transform is by far the most commonly used technique for spectral manipulation in
+digital audio effects, there exist numerous other transformations which may be useful as well to
+achieve certain audio effects. One such technique is the Mellin transform, described in a audio
+effects context by De Sena and Rocchesso~\cite{de2004fast}. The Mellin transform has a scale
+invariance property that is analogous to the shift invariance property of the Fourier transform. It
+can be computed quickly by applying two extra steps before doing a Fourier transform: exponential
+time warping and exponential multiplication. A few simple audio effects are presented using the
+Mellin transform, time stretching, filtering and random phase deviation (whisperization).
+
+As the Mellin transform can be implemented simply as an extension to the Fourier transform, it
+should be fairly easy to add support for it in ScPy, and it will hopefully enable the use of
+some different audio effects than can be achieved easily with the Fourier transform. However, the
+paper mentions that a short-time Mellin transform has not been attempted, so some further work may
+need to be done in that area first.
+
+Collins et al.~\cite{collins2003live} present an introduction to the field of live coding, where
+code to generate sound is written live during a performance, often on a laptop computer. Although
+the use graphical programming environments such as Reaktor, Pure Data, or MAX/MSP in live
+performances is in some sense live coding, the paper focuses on the use of text based programming
+environments. Many of the pros and cons of live coding are presented. Although live coding adds
+some very interesting new possibilities to live music performance, it is not without it's
+challenges. Case studies of two live coding environments are included: Slub and SuperCollider with
+the just in time library.
+
+ScPy can be used for live coding of audio effects, similarly to how the environments studied in
+this paper can be used to live code synths and pattens. More details about how ScPy was designed to
+facilitate this can be found in \autoref{sec:methodology}.
+
+Live coding presents an interesting contrast to contemporary music with many clear differences.
+Nilson~\cite{nilson2007live} presents a review of the challenges of live coding
+practice. While some argue that live coding must be performed live in front of an
+audience, an alternate perspective suggests that time constraints are not necessary and that the
+practice can refer to any improvisational music created by programming. The practice of live coding
+is still quite young --- it is mentioned that professional violinists will typically have practiced
+for 10000 hours, where as an email survey of live coders revealed most had dedicated about 100
+hours. Of course, the prerequisite knowledge for live coding may be higher; many live coders have
+extensive programming experience. Another thing mentioned is the high level of abstraction offered
+by live coding creates a large startup time for producing meaningful output from a blank slate.
+Additionally, many exercises are presented for improving one's live coding ability.
+
+The ideas in Nilson's paper shed light on some of the challenges faced in this project.
+One such challenge is the amount of writing required to produce an interesting result from a blank
+slate. We intend to minimise this by providing many effect primitives and composition
+mechanisms. However, it will be important to ensure the language is accessible to ensure it can be
+quickly learned to a level of expertise where lack of technical knowledge is not an impediment.
+
+Domain-Specific Languages (DSLs) are small programming languages designed for use in a specific
+problem domain. They often lack general purpose programming constructs and have a syntax which is
+very concise for describing programs in their domain. Van Deursen et al.~\cite{van2000domain}
+present a survey of available DSL literature, along with the pros and cons of using a DSL, example
+DSLs, design methodology and implementation approaches. The biggest advantage of DSLs is that they
+enable expression of solutions in a way that is common for the problem domain. However, they can be
+costly to develop and difficult to design. Implementation techniques include the classical approach
+of interpretation or compilation, embedded languages / domain-specific libraries, preprocessing, or
+compiler extension. Additionally, the references of the paper each include a short summary.
+
+This review reveals many of the possible options for the DSL used within the project. Although we
+decided not to design a DSL for our project, analyzing the design and implementation techniques
+presented here will be helpful for future work in this area.
+
+As Python is an easily extendible general purpose language, it has applications in many scientific
+fields. Glover et al.~\cite{glover2011python} present a discussion of the use of Python for audio
+signal processing. They note that while audio processing libraries exist for many languages,
+scripting languages such as Python or MATLAB see widespread adoption because of the speed at which
+prototypes can be built. General purpose Python libraries such as NumPy, SciPy and Matplotlib
+include many essential functions for audio processing, such as file IO, Fourier transforms, signal
+processing and interpolation. There are additionally more specific libraries such as Simpl, a
+sinusoidal modelling library, and Modal, an onset detection library. Any of these libraries can
+easily be used within ScPy simply by installing and importing them.
+
+Another open-source Python library which could be used in ScPy is librosa~\cite{mcfee2015librosa}
+by McFee et al.\ librosa is a music signal analysis library designed to help transition music
+information retrieval (MIR) researchers into using Python, as well as make MIR techniques readily
+available to all Python programmers.\ librosa's core design choices and conventions are documented
+in detail to inspire future library authors to follow similarly good coding practice. As well as
+standard audio analysis functions, librosa also includes support for effects and audio IO.\@
+
+librosa has quite an extensive list of features and would likely cover all of the audio related
+functionality which is missing from NumPy. It can be used with ScPy simply by installing and importing
+it.
+
+The ixi lang~\cite{magnusson2011ixi} is a live coding language. It is implemented as an interpreter
+built in SuperCollider, a choice which allows for SuperCollider and ixi lang code to be mixed
+together in a similar manner to ScPy. The ixi lang is built to reduce the startup time in a live
+coding performance and enable faster musical experimentation through syntax more concise than
+SuperCollider. The paper also contains user feedback on the usability of the ixi lang.
+
+Since the ixi lang is similar to ScPy in many ways, many of the design choices made in ixi lang are
+also appropriate in ScPy. Additionally, lessons learned from the user feedback for ixi lang could
+potentially be used to improve usability of ScPy.
 
 \section{Methodology}\label{sec:methodology}
 
