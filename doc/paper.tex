@@ -32,15 +32,15 @@
 
 \begin{abstract}
 
-    SuperCollider~\cite{wilson2011supercollider}, a language for sound synthesis and algorithmic
-    composition of audio, supports a wide range of synthesis, effect and analysis algorithms.
-    However, available operations are limited to those implemented explicitly as Unit Generators
-    (UGens). Since UGens are written in C/C++ and loaded as plugins during the SuperCollider server
-    boot process, it is impossible to live code UGens, which limits the user to creating sound as a
-    composition of existing UGens during a performance.  Many of the vector operations required for
-    efficiently creating complex audio effects are notably missing or tedious to use. To overcome
-    this, we present ScPy, a UGen which embeds Python within SuperCollider to enable the use of the
-    optimized vector operations provided by the NumPy library.
+    SuperCollider, a language for sound synthesis and algorithmic composition of audio, supports a
+    wide range of synthesis, effect and analysis algorithms.  However, available operations are
+    limited to those implemented explicitly as Unit Generators (UGens). Since UGens are written in
+    C/C++ and loaded as plugins during the SuperCollider server boot process, it is impossible to
+    live code UGens, which limits the user to creating sound as a composition of existing UGens
+    during a performance.  Many of the vector operations required for efficiently creating complex
+    audio effects are notably missing or tedious to use. To overcome this, we present ScPy, a UGen
+    which embeds Python within SuperCollider to enable the use of the optimized vector operations
+    provided by the NumPy library.
 
 \end{abstract}
 
@@ -71,6 +71,187 @@ purposes as well.
 ScPy is developed and maintained as an open-source project under the GPLv3 license. The latest code
 and documentation is available on GitHub\footnote{\url{https://github.com/nwoeanhinnogaehr/ScPy}}.
 
+\section{Literature Review}\label{sec:lit}
+
+With any New Interface for Musical Expression (NIME), it is important to evaluate how it performs
+and is interacted with across various dimensions. Birnbaum et al.~\cite{birnbaum2005towards}
+present a new model for evaluating musical instruments by determining the position of the
+instrument along 7 axes: \textit{Required Expertise}, \textit{Musical Control}, \textit{Feedback
+Modalities}, \textit{Degrees of Freedom}, \textit{Inter-actors}, \textit{Distribution in Space},
+and the \textit{Role of Sound}. Some of these axes represent a continuous spectrum, where as others
+have discrete steps. These dimensions are arranged to form a heptagon in the 2D plane, where each
+corner of the shape is placed at a distance to the center proportional to the score of the
+instrument being evaluated along the corresponding axis. The specific layout of the dimensions used
+in the paper additionally has properties which allow instruments of different classes to be easily
+distinguished. Plots of instruments tend to occupy the right side of the graph, where as
+installations tend to occupy the left. Although this model performs well on the instruments
+evaluated in the paper, it is based on subjective evaluation and it is likely that it does not
+adequately cover the space of all possible instruments.
+
+ScPy is unlike many NIMEs because it does not have the properties of any traditional instrument.
+However, it can still be considered a NIME because it ultimately is a tool for musical expression,
+just with an unconventional method of interaction. A plot of ScPy in the 7-dimensional space
+developed by Birnbaum et al.\ can be seen in~\autoref{fig:nime}.
+
+\begin{figure}[ht]
+\caption{NIME dimension space analysis for ScPy.}
+\vspace{1em}
+\includegraphics[scale=0.2]{nime-plot}
+\label{fig:nime}
+\end{figure}
+
+The phase vocoder is an essential part of spectral audio manipulation. De G{\"o}tzen et
+al.~\cite{de2000traditional} present an open source Matlab implementation along with a number of
+tricks to make the implementation faster or simpler. The implementation is split into two
+functions, \texttt{pv\_analyze} and \texttt{pv\_synthesize}. These functions operate as a tightly
+coupled set due to the phase information maintained between frames. One of the techniques presented
+is to perform a \texttt{fftshift} operation in order to simplify the phase relationship between
+neighbouring bins. Another is to zero pad frames: by adding extra zeros on each side of a frame, a
+larger FFT size can be used, producing better accuracy while maintaining good time resolution.
+
+The code in this paper was used as a reference for the phase vocoder implementation in ScPy.
+Additionally, some of the extra techniques mentioned could improve the quality or flexibility of
+the implementation in the future.
+
+Collins et al.~\cite{collins2003live} present an introduction to the field of live coding, where
+code to generate sound is written live during a performance, often on a laptop computer. Although
+the use graphical programming environments such as Reaktor, Pure Data, or MAX/MSP in live
+performances is in some sense live coding, the paper focuses on the use of text based programming
+environments. Many of the pros and cons of live coding are presented. Although live coding adds
+some very interesting new possibilities to live music performance, it is not without it's
+challenges. Case studies of two live coding environments are included: Slub and SuperCollider with
+the just in time library.
+
+ScPy can be used for live coding of audio effects, similarly to how the environments studied in
+this paper can be used to live code synths and pattens. However, at the time of writing one issue
+is blocking ScPy from realistically being used for live coding performances: the Python global
+environment can be put into a state which prevents the code from executing without throwing an
+exception, which could halt a performance in its tracks if the programmer made one of a number of
+errors. This may be avoidable if more advanced error detection is implemented in the future.
+
+Live coding presents an interesting contrast to contemporary music with many clear differences.
+Nilson~\cite{nilson2007live} presents a review of the challenges of live coding
+practice. While some argue that live coding must be performed live in front of an
+audience, an alternate perspective suggests that time constraints are not necessary and that the
+practice can refer to any improvisational music created by programming. The practice of live coding
+is still quite young --- it is mentioned that professional violinists will typically have practiced
+for 10000 hours, where as an email survey of live coders revealed most had dedicated about 100
+hours. Of course, the prerequisite knowledge for live coding may be higher; many live coders have
+extensive programming experience. Another thing mentioned is the high level of abstraction offered
+by live coding creates a large startup time for producing meaningful output from a blank slate.
+Additionally, many exercises are presented for improving one's live coding ability.
+
+The ideas in Nilson's paper shed light on some of the challenges faced in this project.
+One such challenge is the amount of writing required to produce an interesting result from a blank
+slate. We intend to minimise this by providing many effect primitives and composition
+mechanisms. However, it will be important to ensure the language is accessible to ensure it can be
+quickly learned to a level of expertise where lack of technical knowledge is not an impediment.
+
+While the Fourier transform is by far the most commonly used technique for spectral manipulation in
+digital audio effects, there exist numerous other transformations which may be useful as well to
+achieve certain audio effects. One such technique is the Mellin transform, described in a audio
+effects context by De Sena and Rocchesso~\cite{de2004fast}. The Mellin transform has a scale
+invariance property that is analogous to the shift invariance property of the Fourier transform. It
+can be computed quickly by applying two extra steps before doing a Fourier transform: exponential
+time warping and exponential multiplication. A few simple audio effects are presented using the
+Mellin transform, time stretching, filtering and random phase deviation (whisperization).
+
+As the Mellin transform can be implemented simply as an extension to the Fourier transform, it
+should be fairly easy to add support for it in ScPy, and it will hopefully enable the use of
+some different audio effects than can be achieved easily with the Fourier transform. However, the
+paper mentions that a short-time Mellin transform has not been attempted, so some further work may
+need to be done in that area first.
+
+Domain-Specific Languages (DSLs) are small programming languages designed for use in a specific
+problem domain. They often lack general purpose programming constructs and have a syntax which is
+very concise for describing programs in their domain. Van Deursen et al.~\cite{van2000domain}
+present a survey of available DSL literature, along with the pros and cons of using a DSL, example
+DSLs, design methodology and implementation approaches. The biggest advantage of DSLs is that they
+enable expression of solutions in a way that is common for the problem domain. However, they can be
+costly to develop and difficult to design. Implementation techniques include the classical approach
+of interpretation or compilation, embedded languages / domain-specific libraries, preprocessing, or
+compiler extension. Additionally, the references of the paper each include a short summary.
+
+This review reveals many of the possible options for the DSL used within the project. Although we
+decided not to design a DSL for our project, analyzing the design and implementation techniques
+presented here will be helpful for future work in this area.
+
+Klingbeil~\cite{klingbeil2005software} describes the techniques used in a high quality graphical
+spectral editing and resynthesis program called SPEAR\@. The FFT analysis is done taking into
+account the fundamental frequency of the sound to analyze, so that the transform can be optimized
+to accurately capture as many partials as possible. Spectral peaks are then selected and very quiet
+peaks are discarded. A linear prediction method is used to follow the peaks over time. The data
+structure for storage of spectral data involves division of time into a number of frames which keep
+track of which partials are active during that time, so that the search for a specific partial can
+be narrowed. User interface design choices are also covered in detail.
+
+Although the interface and granularity of SPEAR differs significantly from those in project, the
+techniques for high quality resynthesis presented should prove useful for improving the quality of
+the sound output.
+
+Keiler and Sylvain~\cite{keiler2002survey} present a survey of 6 techniques for accurate analysis
+of stationary sounds. The first method, plain FFT, uses a Hann window and assumes the frequencies
+of the sinusoids at centered within each bin. Parabolic interpolation notices that the shape of a
+magnitude peak looks like a parabola, and thus attempts to fit a parabola to the magnitudes of bins
+nearby each local maxima, yielding more accurate results than a plain FFT\@. The triangle algorithm
+is similar to the parabolic interpolation method but fits a triangular function instead of a
+parabola. Spectral reassignment uses the derivative of the analysis window to estimate the true
+values of the bins as the center of gravity of the energy of each bin. The derivative algorithm
+also uses the derivative of the analysis window to determine both a more accurate frequency and
+amplitude. It can be further extended to use the first nth derivatives. The phase vocoder uses the
+phase information of two successive FFTs to improve the frequency resolution by calculating the
+phase derivative. Comparison of the techniques found that the spectral reassignment, derivative
+algorithm, and phase vocoder methods had the best performance. Surprisingly, those three techniques
+produced almost identical results, suggesting that they may have equivalent theoretical basis.
+
+The two other techniques that performed similarly to the phase vocoder will be interesting to
+analyze in more detail since they may present a solution to the \textit{phasiness} problem of the
+phase vocoder due their lack of persistent state. However, they require extra processing so it is
+not clear if the trade-off will be worthwhile.
+
+Audio morphing is defined as a gradual change from one sound to the other. While morphing can be
+achieved to some extent simply by cross fading two signals, perceptually this sounds simply like
+one sound is becoming quieter as the other is becoming louder. Sethares and Bucklew
+\cite{sethares2012kernel} propose density and kernel based techniques that aim to provide a more
+convincing morph operation where there is no clear separation between the two sounds at any point
+during the morphing process. The method allows the use of different kernel functions to provide
+different kinds of morphing. These include \textit{Cross-fade}, \textit{Heat equation}, and
+\textit{Harmonic integrity}. The morphing technique is implemented using a phase vocoder.
+
+As a future extension to ScPy, these morphing techniques could be implemented in Python.
+
+As Python is an easily extendible general purpose language, it has applications in many scientific
+fields.  Glover et al.~\cite{glover2011python} present a discussion of the use of Python for audio
+signal processing. They note that while audio processing libraries exist for many languages,
+scripting languages such as Python or MATLAB see widespread adoption because of the speed at which
+prototypes can be built. General purpose Python libraries such as NumPy, SciPy and Matplotlib
+include many essential functions for audio processing, such as file IO, Fourier transforms, signal
+processing and interpolation. There are additionally more specific libraries such as Simpl, a
+sinusoidal modelling library, and Modal, an onset detection library.
+
+Any of these libraries can easily be used within ScPy simply by installing and importing them.
+
+Another open-source Python library which could be used in ScPy is librosa~\cite{mcfee2015librosa}
+by McFee et al.\ librosa is a music signal analysis library designed to help transition music
+information retrieval (MIR) researchers into using Python, as well as make MIR techniques readily
+available to all Python programmers.\ librosa's core design choices and conventions are documented
+in detail to inspire future library authors to follow similarly good coding practice. As well as
+standard audio analysis functions, librosa also includes support for effects and audio IO.\@
+
+librosa has quite an extensive list of features and would likely cover all of the audio related
+functionality which is missing from NumPy. It can be used with ScPy simply by installing and importing
+it.
+
+The ixi lang~\cite{magnusson2011ixi} is a live coding language. It is implemented as an interpreter
+built in SuperCollider, a choice which allows for SuperCollider and ixi lang code to be mixed
+together in a similar manner to ScPy. The ixi lang is built to reduce the startup time in a live
+coding performance and enable faster musical experimentation through syntax more concise than
+SuperCollider. The paper also contains user feedback on the usability of the ixi lang.
+
+Since the ixi lang is similar to ScPy in many ways, many of the design choices made in ixi lang are
+also appropriate in ScPy. Additionally, lessons learned from the user feedback for ixi lang could
+potentially be used to improve usability of ScPy.
+
 \section{Methodology}\label{sec:methodology}
 
 During the initial planning stage of the project, we wanted to essentially provide a set of
@@ -78,19 +259,6 @@ fundamental operations on spectral data which could be composed together to perf
 effect. It was also a requirement that these operations would be syntactically concise to enable
 easy and fast experimentation. Ideally, the system would be able to handle complex effects in
 real-time.
-
-ScPy is unlike many New Instruments for Musical Expression (NIMEs) because it does not have the
-properties of any traditional instrument. However, it can still be considered a NIME because it
-ultimately is a tool to enhance musical expression, just with an unconventional method of
-interaction.  Dimension space analysis, as explored by Birnbaum et al.~\cite{birnbaum2005towards},
-can facilitate the comparison of use cases for NIMEs.
-
-\begin{figure}[h]
-\caption{NIME dimension space analysis for ScPy.}
-\vspace{1em}
-\includegraphics[scale=0.2]{nime-plot}
-\label{fig:nime}
-\end{figure}
 
 Although designing a domain-specific language (DSL)~\cite{van2000domain} for this task was briefly
 considered, we eventually decided to use Python for a number of reasons. First, Python includes an
@@ -112,6 +280,13 @@ the GPU for extra performance. Implementing an equivalent to these popular Pytho
 SuperCollider is certainly possible, but it would require a very large amount of work and would see
 no adoption outside of the audio computing community.
 
+In order to facilitate the use of ScPy in live coding performances, many errors are ignored or
+handled in a way that can be easily recovered from. In particular, floating point errors such as
+division by zero or other invalid operations are ignored. Special values such as infinity or NAN
+are replaced with zeros. This is done because SuperCollider has poor handling of these special
+values and in some cases will crash if they are found. Python exceptions are printed to the
+SuperCollider post window, where they can easily be examined and corrected by the user.
+
 \section{Usage}\label{sec:usage}
 
 Use of ScPy is through the classes \texttt{Py} and \texttt{PyOnce}. \texttt{Py} is used for
@@ -121,7 +296,7 @@ optionally be provided to bind SuperCollider variables to Python variables.  Add
 an optional \texttt{DoneAction} argument which specifies an action to occur in SuperCollider after
 the Python code has finished executing.
 
-\begin{listing}[H]
+\begin{listing}[ht]
     \begin{minted}[linenos=true]{SuperCollider}
 (PyOnce("
     # comments in Python have different syntax!
@@ -133,7 +308,7 @@ the Python code has finished executing.
     \label{lst:helloworld}
 \end{listing}
 
-\begin{listing}[H]
+\begin{listing}[ht]
     \inputminted[linenos=true]{SuperCollider}{../examples/template.sc}
     \caption{SuperCollider boilerplate for no-op FFT effect with ScPy.}
     \label{lst:boilerplate}
@@ -150,7 +325,7 @@ A special function, \texttt{out}, is provided to mutate data in SuperCollider bu
 variable which is bound to a \texttt{Buffer} or \texttt{FFT} object and a new value. The buffer is
 modified in place to hold the new data.
 
-\begin{listing}[H]
+\begin{listing}[ht]
     \begin{minted}[linenos=true]{python}
 pv = PhaseVocoder(hop)
 
@@ -168,7 +343,7 @@ def fn(x):
     \label{lst:shepard}
 \end{listing}
 
-\begin{listing}[H]
+\begin{listing}[ht]
     \begin{minted}[linenos=true]{python}
 pv = PhaseVocoder(hop)
 
@@ -218,7 +393,7 @@ incomplete implementation of \texttt{FFT} objects in SuperCollider. The current 
 continue to function as intended if \texttt{FFT} objects are given multichannel support in the
 future.
 
-\begin{table}[H]
+\begin{table}[ht]
     \caption{Type correspondence between SuperCollider and Python}
     \begin{center}
         \begin{tabular}{ll}
@@ -242,6 +417,8 @@ implementation of a phase vocoder to be found in the SuperCollider code base at 
 writing. It is likely that a phase vocoder was once intended to be implemented, but the 32
 so-called phase vocoder effects are simply transformations to the Cartesian or polar
 representations of the spectrum.
+
+TODO data flow diagram
 
 \section{Future Work}
 
