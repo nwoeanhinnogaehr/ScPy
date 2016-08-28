@@ -8,8 +8,8 @@
 \usepackage{minted}
 \usepackage[style=numeric-comp]{biblatex}
 \usepackage{booktabs}
-\usepackage{graphicx}
 \usepackage{tikz}
+\usepackage{tkz-kiviat}
 
 \usetikzlibrary{arrows}
 
@@ -97,10 +97,23 @@ just with an unconventional method of interaction. A plot of ScPy in the 7-dimen
 developed by Birnbaum et al.\ can be seen in~\autoref{fig:nime}.
 
 \begin{figure}[ht]
-\caption{NIME dimension space analysis for ScPy.}
-\vspace{1em}
-\includegraphics[scale=0.2]{nime-plot}
-\label{fig:nime}
+    \caption{NIME dimension space analysis for ScPy.}\label{fig:nime}
+    \begin{center}
+        \begin{tikzpicture}[rotate=-116,xscale=-1]
+            \tkzKiviatDiagram[label distance=.5cm,
+                    radial=7,
+                    gap=0.75,
+                    lattice=4]{Required Expertise,
+                    Musical Control,
+                    Degrees of Freedom (Inputs),
+                    Feedback Modalities (Outputs),
+                    Inter-actors,
+                    Distribution in Space,
+                    Role of Sound}
+            \tkzKiviatLine[thick,color=blue,mark=none,
+                           fill=blue!20,opacity=.5](4,4,1.5,1.5,0.5,0.5,3)
+        \end{tikzpicture}
+    \end{center}
 \end{figure}
 
 The phase vocoder is an essential part of spectral audio manipulation. De G{\"o}tzen et
