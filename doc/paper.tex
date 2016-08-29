@@ -130,9 +130,9 @@ improvisational music created by programming. The practice of live coding is sti
 For example, Nilson writes that professional violinists will typically have practiced for 10000 hours, where
 as an email survey of live coders revealed most had dedicated about 100 hours. Of course, the
 prerequisite knowledge for live coding may be higher; many live coders have extensive programming
-experience. Also mentioned is the high level of abstraction offered by live coding creates a large
-startup time for producing meaningful output from a blank slate.  Additionally, many exercises are
-presented for improving one's live coding ability.
+experience. Also mentioned is that the high level of abstraction offered by live coding creates a large
+startup time for producing meaningful output from a blank slate. The paper presents many exercises
+for improving one's live coding ability.
 
 Nilson's work sheds light on some of the challenges faced in this project.
 One such challenge is the amount of code required to produce an interesting result from a blank
@@ -194,12 +194,12 @@ vocoder algorithm is built to preserve horizontal phase coherence but it does so
 of vertical phase coherence. To remedy this, they build on prior work by presenting two new
 phase-locking techniques.
 
-Similar techniques~\cite{laroche1999new} enable new phase vocoder techniques that enable
-exotic audio effects. The core of the techniques is a peak detection process followed by peak
-shifting. Since these new techniques operate on peaks the standard phase vocoder algorithm can be
-simplified to not require phase unwrapping, reducing computational complexity. Additionally, they
-produce better quality output than the standard phase vocoder algorithm because of implicit
-phase-locking.
+Similar techniques also by Laroche and Dolson~\cite{laroche1999new} enable new phase vocoder
+techniques that can be used for exotic audio effects. The core of the techniques is a peak
+detection process followed by peak shifting. Since these new techniques operate on peaks the
+standard phase vocoder algorithm can be simplified to not require phase unwrapping, reducing
+computational complexity. Additionally, they produce better quality output than the standard phase
+vocoder algorithm because of implicit phase-locking.
 
 The phase vocoder currently implemented in ScPy uses the standard algorithm. Future experiments
 could implement many of the proposed modifications to the phase vocoder to improve sound quality.
@@ -214,7 +214,8 @@ over traditional implementations. Quality is greatly improved but at a high comp
 analysis bin can hold any frequency, essentially making the spectrum more of a generic oscillator
 bank than a traditional spectrum. This simplifies effects such as pitch shifting to a simple vector
 multiplication in the frequency domain. Additionally, since the time resolution is so fine, effects
-that require time modulation such as FM or AM can now be performed in the frequency domain.
+that require high resolution modulation through time such as FM or AM can now be performed in the
+frequency domain.
 
 Using Theano, the sliding DFT and sliding phase vocoder could be implemented easily in ScPy. It
 remains unknown if it will be possible to run them in real-time, but even if not this future
@@ -240,7 +241,7 @@ effects context by De Sena and Rocchesso~\cite{de2004fast}. The Mellin transform
 invariance property that is analogous to the shift invariance property of the Fourier transform. It
 can be computed quickly by applying two extra steps before doing a Fourier transform: exponential
 time warping and exponential multiplication. A few simple audio effects are presented using the
-Mellin transform, time stretching, filtering and random phase deviation (\textit{whisperization}).
+Mellin transform: time stretching, filtering and random phase deviation (\textit{whisperization}).
 
 As the Mellin transform can be implemented simply as an extension to the Fourier transform, it
 should be fairly easy to add support for it in ScPy and it will hopefully enable the use of
@@ -255,7 +256,7 @@ code to generate sound is written live during a performance, often on a laptop c
 the use graphical programming environments such as Reaktor, Pure Data, or MAX/MSP in live
 performances is in some sense live coding, the paper focuses on the use of text based programming
 environments. Many of the pros and cons of live coding are presented. Although live coding adds
-some very interesting new possibilities to live music performance, it is not without it's
+some very interesting new possibilities to live music performance, it is not without its
 challenges. Case studies of two live coding environments are included: Slub and SuperCollider with
 the \textit{just in time} library.
 
@@ -273,9 +274,9 @@ costly to develop and difficult to design. Implementation techniques include the
 of interpretation or compilation, embedded languages / domain-specific libraries, preprocessing, or
 compiler extension. The paper also includes an annotated bibliography.
 
-This review reveals many of the possible options for the DSL used within the project. Although we
-decided not to design a DSL for our project, analyzing the design and implementation techniques
-presented here will be helpful for future work in this area.
+This review presents many useful ideas for language design within ScPy. Although we decided not to
+design a DSL for our project, analyzing the design and implementation techniques presented here
+will be helpful for future work in this area.
 
 As Python is an easily extendible general purpose language, it has applications in many scientific
 fields. Glover et al.~\cite{glover2011python} present a discussion of the use of Python for audio
@@ -306,7 +307,7 @@ SuperCollider. This paper also contains user feedback on the usability of the ix
 
 Since the ixi lang is similar to ScPy in many ways, many of the design choices made in ixi lang are
 also appropriate in ScPy. Lessons learned from the user feedback for ixi lang could
-potentially be used to improve usability of ScPy.
+potentially be used to improve the usability of ScPy.
 
 \section{Methodology}\label{sec:methodology}
 
@@ -413,7 +414,7 @@ pv = PhaseVocoder(hop)
 def fn(x):
     x = pv.forward(x)
     x = pv.to_bin_offset(x)
-    x.imag = -x.imag # imaginary part holds frequency
+    x.imag *= -1 # imaginary part holds frequency
     x = pv.from_bin_offset(x)
     x = pv.backward(x)
     return x
@@ -488,7 +489,7 @@ Control UGens only provide a single floating point value per cycle so it would s
 convert them to a Python \texttt{float}, but in ScPy they are instead transferred to Python in a
 one element \texttt{ndarray}. This is because Python provides no numerical types with interior
 mutability. In practice, NumPy accepts a one element \texttt{ndarray} almost anywhere a
-\texttt{float} is accepted, so this detail is not an annoyance.
+\texttt{float} is accepted, so this detail is usually not an annoyance.
 
 \begin{table}[ht]
     \caption{Type correspondence between SuperCollider and Python}
@@ -509,17 +510,17 @@ mutability. In practice, NumPy accepts a one element \texttt{ndarray} almost any
 
 As shown in \autoref{lst:shepard} and \autoref{lst:binflipper}, ScPy includes a phase vocoder
 implemented in Python for performing frequency transformations. Interestingly, although all of
-SuperCollider's FFT operations are referred to as phase vocoder operations, there is actually no
-implementation of a phase vocoder to be found in the SuperCollider code base at the time of
-writing. It is likely that a phase vocoder was once intended to be implemented, but the 32
-so-called phase vocoder effects are simply transformations to the Cartesian or polar
-representations of the spectrum.
+SuperCollider's FFT operations are referred to as phase vocoder operations in the code and
+documentation, there is actually no implementation of a phase vocoder to be found in the
+SuperCollider code base at the time of writing. It is likely that a phase vocoder was once intended
+to be implemented, but the 32 so-called phase vocoder effects are simply transformations to the
+Cartesian or polar representations of the spectrum.
 
 \section{Future Work}
 
 At the time of writing, ScPy only supports handling audio rate data via SuperCollider's
 \texttt{Buffer} objects. In order to make some use cases more ergonomic ScPy could certainly be
-extended to support raw audio rate input. For example, this would make time domain audio data even
+extended to support raw audio rate input. This would make time domain audio data even
 simpler to work with than frequency domain data is currently. It would also enable SuperCollider's
 FFT UGen to be easily re-implemented in Python for greater flexibility.
 
@@ -539,18 +540,19 @@ embedded language from the host in order to allow easier interoperation and a cl
 implementation.
 
 Throughout~\autoref{sec:lit}, articles are discussed which contain processing techniques that could
-be used in ScPy. Although implementations of many of these techniques are likely to become a part
-of ScPy in the future, there is no obstacle to the reader implementing them as Python libraries
-usable by ScPy or even as contributions to the project.
+be used in ScPy. Although implementations of many of these techniques may to become a part of ScPy
+in the future, there is no obstacle to the reader implementing them as external Python libraries
+usable by ScPy.
 
 \section{Conclusion}
 
-While the number of future extensions to ScPy is numerous, the basic implementation that currently
-exists is more than enough to yield countless exotic and novel audio effects. In the limited
-experiments that we did using the software, it was found to be very easy to produce many advanced
-sounds, thanks to the excellent documentation and implementation of the Python language and NumPy
-library. Although it was possible to make these effects without our technology, ScPy makes it
-possible to experiment with them at an unprecedented rate and listen to their output in real-time.
+While the number of possible future extensions to ScPy is numerous, the basic implementation that
+currently exists is more than enough to yield countless exotic and novel audio effects. In the
+limited experiments that we did using the software, it was found to be very easy to produce many
+advanced sounds, thanks to the excellent documentation and implementation of the Python language
+and NumPy library. Although it was possible to make these effects without our technology, ScPy
+makes it possible to experiment with them at an unprecedented rate and listen to their output in
+real-time.
 
 Initial tests have been promising but they have so far have been focused on spectral processing,
 leaving time domain audio and control rate data processing largely untested. Further experiments in
