@@ -63,16 +63,16 @@ be found in~\autoref{sec:usage}.
 
 ScPy enables users to overcome these limitations. By embedding the Python programming language
 within SuperCollider, it is possible to do numerical processing operations which would be too slow
-to perform in real time with SuperCollider alone. Through access to the NumPy library, previously
+to perform in real-time with SuperCollider alone. Through access to the NumPy library, previously
 difficult or impossible phase vocoder operations become trivial. Although our usage of this library
 for testing purposes has mostly focused on FFT based operations, support exists for passing
 arbitrary data buffers to Python, which can be used to process numerical data for many other
 purposes as well.
 
 ScPy is developed and maintained as an open-source project under the GPLv3 license. The latest
-code, documentation, and issues are available on
-GitHub\footnote{\url{https://github.com/nwoeanhinnogaehr/ScPy}}. Contributions to the project are
-welcome.
+code, documentation, examples, and issues are available on
+GitHub\footnote{\url{https://github.com/nwoeanhinnogaehr/ScPy}}. The code has been developed and
+tested on the Linux operating system using SuperCollider version 3.6.6.
 
 \section{Literature Review}\label{sec:lit}
 
@@ -97,7 +97,6 @@ ScPy is unlike many NIMEs because it does not have the properties of any traditi
 However, it can still be considered a NIME because it ultimately is a tool for musical expression,
 just with an unconventional method of interaction. A plot of ScPy in the 7-dimensional space
 developed by Birnbaum et al.\ can be seen in~\autoref{fig:nime}.
-
 \begin{figure}[ht]
     \caption{NIME dimension space analysis for ScPy.}\label{fig:nime}
     \begin{center}
@@ -117,6 +116,24 @@ developed by Birnbaum et al.\ can be seen in~\autoref{fig:nime}.
         \end{tikzpicture}
     \end{center}
 \end{figure}
+\\\par
+Live coding presents an interesting contrast to contemporary music with many clear differences.
+Nilson~\cite{nilson2007live} presents a review of the challenges of live coding
+practice. While some argue that live coding must be performed live in front of an
+audience, an alternate perspective suggests that time constraints are not necessary and that the
+practice can refer to any improvisational music created by programming. The practice of live coding
+is still quite young --- it is mentioned that professional violinists will typically have practiced
+for 10000 hours, where as an email survey of live coders revealed most had dedicated about 100
+hours. Of course, the prerequisite knowledge for live coding may be higher; many live coders have
+extensive programming experience. Also mentioned is the high level of abstraction offered
+by live coding creates a large startup time for producing meaningful output from a blank slate.
+Additionally, many exercises are presented for improving one's live coding ability.
+
+The ideas in Nilson's paper shed light on some of the challenges faced in this project.
+One such challenge is the amount of writing required to produce an interesting result from a blank
+slate. We intend to minimise this by providing many effect primitives and composition
+mechanisms. However, it will be important to ensure the language is accessible to ensure it can be
+quickly learned to a level of expertise where lack of technical knowledge is not an impediment.
 
 \subsection{Spectral audio processing}
 
@@ -185,7 +202,7 @@ could implement many of the proposed modifications to the phase vocoder to impro
 Bradford et al.\ have published a number of works detailing the sliding
 DFT~\cite{bradford2005sliding} and associated sliding phase vocoder~\cite{bradford2007sliding}.
 These new algorithms are efficient implementations for the STFT with a hop size of a single sample.
-Although such a small hop size would be impossible to process in real time using current hardware
+Although such a small hop size would be impossible to process in real-time using current hardware
 and the STFT, the sliding DFT makes it possible using consumer GPU
 hardware~\cite{bradford2011real}. The sliding phase vocoder additionally has a number of advantges
 over traditional implementations. Quality is greatly improved (at a high computational cost). Each
@@ -195,7 +212,7 @@ multiplication in the frequency domain. Additionally, since the time resolution 
 that require time modulation such as FM or AM can now be performed in the frequency domain.
 
 Using Theano, the sliding DFT and sliding phase vocoder could be implemented easily in ScPy. It
-remains unknown if it will be possible to run them in real time, but even if not this future
+remains unknown if it will be possible to run them in real-time, but even if not this future
 extension could add the possibility to experiment with many novel effects.
 \\\par
 Klingbeil~\cite{klingbeil2005software} describes the techniques used in a high quality graphical
@@ -225,7 +242,9 @@ should be fairly easy to add support for it in ScPy, and it will hopefully enabl
 some different audio effects than can be achieved easily with the Fourier transform. However, the
 paper mentions that a short-time Mellin transform has not been attempted, so some further work may
 need to be done in that area first.
-\\\par
+
+\subsection{Lanugages}
+
 Collins et al.~\cite{collins2003live} present an introduction to the field of live coding, where
 code to generate sound is written live during a performance, often on a laptop computer. Although
 the use graphical programming environments such as Reaktor, Pure Data, or MAX/MSP in live
@@ -238,26 +257,6 @@ the just in time library.
 ScPy can be used for live coding of audio effects, similarly to how the environments studied in
 this paper can be used to live code synths and pattens. More details about how ScPy was designed to
 facilitate this can be found in \autoref{sec:methodology}.
-
-\subsection{Lanugages}
-
-Live coding presents an interesting contrast to contemporary music with many clear differences.
-Nilson~\cite{nilson2007live} presents a review of the challenges of live coding
-practice. While some argue that live coding must be performed live in front of an
-audience, an alternate perspective suggests that time constraints are not necessary and that the
-practice can refer to any improvisational music created by programming. The practice of live coding
-is still quite young --- it is mentioned that professional violinists will typically have practiced
-for 10000 hours, where as an email survey of live coders revealed most had dedicated about 100
-hours. Of course, the prerequisite knowledge for live coding may be higher; many live coders have
-extensive programming experience. Another thing mentioned is the high level of abstraction offered
-by live coding creates a large startup time for producing meaningful output from a blank slate.
-Additionally, many exercises are presented for improving one's live coding ability.
-
-The ideas in Nilson's paper shed light on some of the challenges faced in this project.
-One such challenge is the amount of writing required to produce an interesting result from a blank
-slate. We intend to minimise this by providing many effect primitives and composition
-mechanisms. However, it will be important to ensure the language is accessible to ensure it can be
-quickly learned to a level of expertise where lack of technical knowledge is not an impediment.
 \\\par
 Domain-Specific Languages (DSLs) are small programming languages designed for use in a specific
 problem domain. They often lack general purpose programming constructs and have a syntax which is
@@ -345,12 +344,13 @@ SuperCollider post window, where they can easily be examined and corrected by th
 
 \section{Usage}\label{sec:usage}
 
-Use of ScPy is through the classes \texttt{Py} and \texttt{PyOnce}. \texttt{Py} is used for
-processing real-time data, and \texttt{PyOnce} is used for doing initialization or other one time
-processing. Both have one required argument, a block of Python code. A map of variable names may
-optionally be provided to bind SuperCollider variables to Python variables. Additionally, there is
-an optional \texttt{DoneAction} argument which specifies an action to occur in SuperCollider after
-the Python code has finished executing.
+Use of ScPy is through the classes \texttt{Py}, \texttt{PyOnce}, \texttt{PyFile}, and
+\texttt{PyOnceFile}. \texttt{Py} is used for processing real-time data, and \texttt{PyOnce} is used
+for doing initialization or other one time processing. Both have one required argument, a block of
+Python code. The \texttt{PyFile} and \texttt{PyOnceFile} variants take a filename instead of inline
+code. For all classes, a map of variable names may optionally be provided to bind SuperCollider
+variables to Python variables. Additionally, there is an optional \texttt{DoneAction} argument
+which specifies an action to occur in SuperCollider after the Python code has finished executing.
 
 \begin{listing}[ht]
     \begin{minted}[linenos=true]{SuperCollider}
@@ -456,10 +456,9 @@ back-end, and a small Python library that provides some useful operations. Due t
 between these languages, connecting them was somewhat awkward in some cases.
 
 Since UGens may only be used as part of a synth, \texttt{PyOnce} is provided as a wrapper which
-hides this detail from the user and allows the execution of Python code outside of a synth. It is
-useful for doing initialization work. Since the current implementation executes Python code in a
-single global namespace, a typical usage patten is for state to be defined in a \texttt{PyOnce}
-block which is later accessed and modified in a \texttt{Py} block.
+hides this detail from the user and allows the execution of Python code outside of a synth. It
+internally just starts a synth with the \texttt{doneAction} argument set such that the synth
+terminates after running once.
 
 One issue involves the process of passing data between SuperCollider and C++. Since UGens are
 designed to work primarily with data streams, adding support for passing in many types of data came
@@ -542,8 +541,26 @@ implementation.
 Throughout~\autoref{sec:lit}, articles are discussed which contain processing techniques that could
 be used in ScPy. Although implementations of many of these techniques are likely to become a part
 of ScPy in the future, there is no obstacle to the reader implementing them as Python libraries
-usable by ScPy or even as open-source contributions to the project.
+usable by ScPy or even as contributions to the project.
 
-\newpage\printbibliography{}
+\section{Conclusion}
+
+While the number of mentioned future extensions to ScPy is exhausting to consider, the basic
+implementation that currently exists is more than enough to yield countless exotic and novel audio
+effects. In the limited experiments that have been done using the software, it was found to be very
+easy to produce many advanced sounds, thanks to the excellent documentation and implementation of
+the Python language and NumPy library. Although it was certainly possible to make these effects
+before, ScPy makes it possible to experiment with them at an unprecedented rate and listen to their
+output in real-time.
+
+Although initial tests have been promising, they have so far have had a focus on spectral
+processing, leaving time domain audio and control rate data processing largely untested. Further
+experiments in these areas could reveal previously unknown new use cases for the project.
+
+However, the code may contain bugs due to the infancy of the project and the nonstandard ways we are
+interfacing with SuperCollider. Users are encouraged to submit bug reports on the project's GitHub
+page\footnote{\url{https://github.com/nwoeanhinnogaehr/ScPy}}.
+
+\printbibliography{}
 
 \end{document}
