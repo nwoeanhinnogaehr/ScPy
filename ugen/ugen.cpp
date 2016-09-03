@@ -134,6 +134,7 @@ Py_Ctor(Py* unit)
 
     int idx = 0;
     unit->doneAction = readAtom<int>(unit, idx);
+    int sampleRate = readAtom<int>(unit, idx);
     unit->code = readString(unit, idx);
     unit->obj = eval.compile(unit->code);
     if (checkError(unit))
@@ -148,6 +149,9 @@ Py_Ctor(Py* unit)
         unit->objs.emplace_back(obj);
         eval.defineVariable(name, obj);
     }
+
+    eval.eval(eval.compile("import api\n"
+                "api.sample_rate = " + to_string(sampleRate) + "\n"));
 
     SETCALC(Py_Next);
 }
@@ -198,6 +202,7 @@ Py_Next(Py* unit, int)
 {
     int idx = 0;
     readAtom<int>(unit, idx); // doneAction
+    readAtom<int>(unit, idx); // sample rate
     readString(unit, idx);    // code
     int numArgs = readAtom<int>(unit, idx);
     for (int i = 0; i < numArgs; i++) {

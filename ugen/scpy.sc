@@ -22,7 +22,7 @@ Py : UGen {
         var convertArgs = { |args|
             convertArray.value(args).invert.collect(convertString).invert.asKeyValuePairs.flat;
         };
-        var argsList = ['control', doneAction]
+        var argsList = ['control', doneAction, SampleRate.ir]
             ++ convertString.value(code)
             ++ args.size
             ++ convertArgs.value(args);

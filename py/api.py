@@ -1,8 +1,6 @@
 import numpy as np
 
-def sample_rate():
-    # TODO
-    return 44100
+sample_rate = 0 # this is set externally later
 
 def out(dst, src):
     """
@@ -89,7 +87,7 @@ class PhaseVocoder:
             self.last_phase = np.zeros(x.shape)
             self.sum_phase = np.zeros(x.shape)
             self.frame_size = x.shape[-1]
-            self.freq_per_bin = sample_rate() / self.frame_size / 2.0
+            self.freq_per_bin = sample_rate / self.frame_size / 2.0
             self.step_size = self.frame_size * self.hop
             self.expect = 2.0 * np.pi * self.hop
             self.bins = np.arange(self.frame_size)
