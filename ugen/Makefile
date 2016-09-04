@@ -1,5 +1,5 @@
 SC_EXT_DIR ?= ~/.local/share/SuperCollider/Extensions
-CXX ?= clang++
+CXX ?= g++
 CXXFLAGS += -I/usr/include/SuperCollider/plugin_interface \
 	-I/usr/include/SuperCollider/common \
 	-I. \
@@ -15,7 +15,7 @@ OBJ_FILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 all : scpy.so
 
 scpy.so : $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) *.o -o scpy.so
+	$(CXX) $(CXXFLAGS) *.o -o scpy.so $(LDFLAGS)
 
 %.o : %.cpp *.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
