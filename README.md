@@ -4,7 +4,7 @@ This project lets you embed Python code inside of SuperCollider programs, enabli
 For all the details, read [the paper](doc/paper.pdf).
 
 ## build
-You need Python 3, make, and g++ or clang++.
+You need Python 3, NumPy, make, and g++ or clang++.
 
 If your SuperCollider extensions dir is not `~/.local/share/SuperCollider/Extensions`, you will have to set `SC_EXT_DIR` appropriately before building.
 ```
@@ -39,7 +39,7 @@ Where:
 
 The `Once` versions are different in that they are not UGens, but rather run the code immediately. They have the doneAction argument set such that they terminate after running the Python code once.
 
-All NumPy functions are imported for you automatically. Variables defined at the top level in a Python block are accessible globally in other Python blocks.
+All NumPy functions are imported for you automatically. Variables defined at the top level in a Python block are accessible globally in other Python blocks. Some additional useful things which are accessible are defined in [py/api.py](py/api.py).
 
 Currently supported SuperCollider types and corresponding Python types:
 
