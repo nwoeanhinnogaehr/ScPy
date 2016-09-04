@@ -17,7 +17,7 @@ Check out the [examples](examples).
 
 This was tested with SuperCollider 3.6.6 and Python 3.5.2.
 
-It should work on the latest SC, but that has not been tested.
+For unknown reasons performance is much better with 3.6.6 than the latest SuperCollider.
 
 If you run into problems, please file an issue!
 
