@@ -4,7 +4,7 @@ This project lets you embed Python code inside of SuperCollider programs, enabli
 For all the details, read [the paper](doc/paper.pdf).
 
 ## build
-You need Python 3, make, and g++ or clang++.
+You need Python 3, NumPy, make, and g++ or clang++.
 
 If your SuperCollider extensions dir is not `~/.local/share/SuperCollider/Extensions`, you will have to set `SC_EXT_DIR` appropriately before building.
 ```
