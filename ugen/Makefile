@@ -3,24 +3,25 @@ CXX ?= clang++
 CXXFLAGS += -I/usr/include/SuperCollider/plugin_interface \
 	-I/usr/include/SuperCollider/common \
 	-I. \
-	`pkg-config --cflags python3` \
+	`python-config --cflags` \
 	-fPIC \
 	-Wall -Wextra -std=c++11 \
 	-D ABS_SOURCE_PATH=\"`pwd`\" \
 	-g
-LDFLAGS += `pkg-config --libs python3`
+LDFLAGS += `python-config --ldflags` \
+		   -shared
 OBJ_FILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
 all : scpy.so
 
 scpy.so : $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) *.o -shared -o scpy.so
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) *.o -o scpy.so
 
 %.o : %.cpp *.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 install : scpy.so scpy.sc
-	cp -f scpy.sc scpy.so $(SC_EXT_DIR)
+	cp -rf scpy.sc scpy.so SystemOverwrites $(SC_EXT_DIR)
 
 clean :
 	rm -rf *.so *.o
