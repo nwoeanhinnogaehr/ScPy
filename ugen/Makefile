@@ -3,12 +3,12 @@ CXX ?= g++
 CXXFLAGS += -I/usr/include/SuperCollider/plugin_interface \
 	-I/usr/include/SuperCollider/common \
 	-I. \
-	`python-config --cflags` \
+	`python3-config --cflags` \
 	-fPIC \
 	-Wall -Wextra -std=c++11 \
 	-D ABS_SOURCE_PATH=\"`pwd`\" \
 	-g
-LDFLAGS += `python-config --ldflags` \
+LDFLAGS += `python3-config --ldflags` \
 		   -shared
 OBJ_FILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
