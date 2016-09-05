@@ -23,5 +23,9 @@ scpy.so : $(OBJ_FILES)
 install : scpy.so scpy.sc
 	cp -f scpy.sc scpy.so $(SC_EXT_DIR)
 
+ubuntuinstall: scpy.so
+	cd loadit
+	make install
+
 clean :
-	rm -rf *.so *.o
+	rm -rf *.so *.o loadit/*.{so,o}
