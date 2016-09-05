@@ -50,8 +50,8 @@ Evaluator::Evaluator()
     _globals = PyModule_GetDict(main);
     _locals = PyDict_New();
 
-    importUnqualified(main, "api");
-    importUnqualified(main, "numpy");
+    //importUnqualified(main, "api");
+    //importUnqualified(main, "numpy");
 
     _flusher = compile("import sys\nsys.stdout.flush()");
 }
@@ -79,7 +79,7 @@ Evaluator::compile(const string& code)
         if (i < line.length())
             minIndent = min(minIndent, i - 1);
     }
-    out << "seterr(all='ignore')\n";
+    out << "import sys\nsys.setdlopenflags(9)\nimport api\nimport numpy\nnumpy.seterr(all='ignore')\n";
     for (size_t i = 0; i < lines.size(); i++) {
         if (lines[i].length() > minIndent)
             out << lines[i].substr(minIndent) << "\n";

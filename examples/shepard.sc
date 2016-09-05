@@ -1,9 +1,10 @@
 // transform any sound into a falling shephard tone
 // you'll need some sound going into SuperCollider's first 2 inputs.
 (s.waitForBoot {
+
     var buf = { Buffer.alloc(s, 512) }.dup;
     var hop = 1/4;
-
+    s.freeAll;
     PyOnce("
         pv = PhaseVocoder(hop)
 
@@ -16,7 +17,7 @@
             return x
     ", (hop:hop));
 
-    s.freeAll;
+//s.freeAll;
     {
         var in = AudioIn.ar([1, 2]);
         var x = FFT(buf.collect(_.bufnum), in, hop);
@@ -25,4 +26,6 @@
         ", (x:x, time:Sweep.kr));
         Out.ar(0, IFFT(x));
     }.play(s);
+
 })
+s.scope;
