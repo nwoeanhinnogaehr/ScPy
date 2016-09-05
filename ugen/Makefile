@@ -28,4 +28,4 @@ ubuntuinstall: scpy.so
 
 clean :
 	rm -rf *.so *.o loadit/*.{so,o}
-	rm -rf ../py/__pycace__
+	rm -rf ../py/__pycache__
