@@ -79,9 +79,6 @@ Evaluator::compile(const string& code)
         if (i < line.length())
             minIndent = min(minIndent, i - 1);
     }
-    //out << "from numpy import *\nseterr(all='ignore')\n";
-    out << "import numpy as np\n";
-    out << "from numpy import *\n";
     out << "seterr(all='ignore')\n";
     for (size_t i = 0; i < lines.size(); i++) {
         if (lines[i].length() > minIndent)

@@ -61,6 +61,16 @@ PluginLoad(LoadIt)
     char filename[1000];
     DefineSimpleUnit(LoadIt);	
 
+    // This will sneakily load your python lib but it is hardcoded so watch out
+    void* handlepy = dlopen( OURPYTHONLIB, RTLD_LAZY | RTLD_GLOBAL);
+    if (!handlepy) {
+        fprintf(stderr,"dlopen of pylib did not work: %s\n", dlerror());
+        //scprintf("*** Loadit ERROR: dlopen '%s' err '%s'\n", filename, dlerror());
+        dlclose(handlepy);
+        return;
+    }
+
+
     // This is pretty terrible, basically we try to load the REAL library
     // from the same directory as this module
     // So we need to ask where this module is being loaded from

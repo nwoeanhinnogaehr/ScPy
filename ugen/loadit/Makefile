@@ -5,6 +5,7 @@ CXXFLAGS += -I/usr/include/SuperCollider/plugin_interface \
 	-I. \
 	`pkg-config --cflags python3` \
         `python3-config --cflags` \
+        -DOURPYTHONLIB=\"`bash YOURPYTHONLIB.sh`\" \
 	-fPIC \
 	-Wall -Wextra -std=c++11 \
 	-D ABS_SOURCE_PATH=\"`pwd`\" \
@@ -14,10 +15,10 @@ OBJ_FILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
 all : scpy.so
 
-scpy.so : $(OBJ_FILES)
+scpy.so : $(OBJ_FILES) YOURPYTHONLIB.sh
 	$(CXX) *.o -shared -o scpy.so $(CXXFLAGS) $(LDFLAGS) 
 
-%.o : %.cpp *.h
+%.o : %.cpp *.h YOURPYTHONLIB.sh
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 install : scpy.so scpy.sc
