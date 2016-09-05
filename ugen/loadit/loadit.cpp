@@ -1,8 +1,8 @@
 #include <FFT_UGens.h>
 #include <dlfcn.h>
 #include <stdio.h>
-
-
+#include <libgen.h>
+#include <string.h>
 
 // InterfaceTable contains pointers to functions in the host (server).
 InterfaceTable *ft;
@@ -58,21 +58,36 @@ PluginLoad(LoadIt)
 {
     // InterfaceTable *inTable implicitly given as argument to the load function
     ft = inTable; // store pointer to InterfaceTable
-
+    char filename[1000];
     DefineSimpleUnit(LoadIt);	
-    printf("Trying to load scpy.os\n");
-    void* handle = dlopen("/home/hindle1/.local/share/SuperCollider/Extensions/scpy.os", RTLD_LAZY | RTLD_GLOBAL );
+
+    // This is pretty terrible, basically we try to load the REAL library
+    // from the same directory as this module
+    // So we need to ask where this module is being loaded from
+    // and then we load our module from that location
+    // we use a clever naming scheme .os -> .so 
+    // this is because we want to use the RTLD_LAZY | RTLD_GLOBAL flags
+    // on dlopen
+    Dl_info dl_info;
+    dladdr((void *)LoadIt_next_k, &dl_info);
+    fprintf(stderr, "module %s loaded\n", dl_info.dli_fname);
+    size_t len = strnlen(dl_info.dli_fname,sizeof(filename));
+    strncpy( filename, dl_info.dli_fname, sizeof(filename));
+    filename[len - 2] = 'o'; 
+    filename[len - 1] = 's'; 
+    // Convert "/home/hindle1/.local/share/SuperCollider/Extensions/scpy.so"
+    // to      "/home/hindle1/.local/share/SuperCollider/Extensions/scpy.os"
+    fprintf(stderr,"Trying to load %s\n", filename);
+    void* handle = dlopen(filename, RTLD_LAZY | RTLD_GLOBAL );
     if (!handle) {
-        printf("dlopen did not work: %s\n", dlerror());
-        //scprintf("*** Loadit ERROR: dlopen '%s' err '%s'\n", filename, dlerror());
+        fprintf(stderr,"dlopen did not work: %s\n", dlerror());
         dlclose(handle);
         return;
     }
     
     void *ptr = dlsym(handle, "load");
     if (!ptr) {
-        printf("dlsym on load did not work\n");
-        //scprintf("*** ERROR: dlsym load err '%s'\n", dlerror());
+        fprintf(stderr,"dlsym on load did not work\n");
         dlclose(handle);
         return;
     }
