@@ -12,7 +12,7 @@
             x = pv.forward(x)
             idx = indices(x.shape)[1]
             x = pv.shift(x, lambda y:
-                y*offset
+                y*offset)
             x = pv.backward(x)
             return x
     ", (hop:hop));
