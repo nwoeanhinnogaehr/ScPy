@@ -22,6 +22,7 @@ scpy.so : $(OBJ_FILES)
 
 install : scpy.so scpy.sc
 	cp -f scpy.sc scpy.so $(SC_EXT_DIR)
+	cp -f ../scpy.so $(SC_EXT_DIR)/scpy.os
 
 clean :
 	rm -rf *.so *.o

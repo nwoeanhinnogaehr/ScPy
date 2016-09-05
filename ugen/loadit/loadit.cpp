@@ -60,37 +60,24 @@ PluginLoad(LoadIt)
     ft = inTable; // store pointer to InterfaceTable
 
     DefineSimpleUnit(LoadIt);	
-	//void* handle = dlopen("/home/hindle1/.local/share/SuperCollider/Extensions/scpy.os", RTLD_LAZY );
-	//void* handlepy = dlopen("libpython3.5.so", RTLD_LAZY | RTLD_GLOBAL );
-	void* handlepy = dlopen("/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/libpython3.5.so",RTLD_LAZY | RTLD_GLOBAL);
-	if (!handlepy) {
-		printf("dlopen of pylib did not work: %s\n", dlerror());
-		//scprintf("*** Loadit ERROR: dlopen '%s' err '%s'\n", filename, dlerror());
-		dlclose(handlepy);
-		return;
-	}
-	//void* handle = dlopen("scpy.os", RTLD_LAZY | RTLD_GLOBAL );
-	void* handle = dlopen("/home/hindle1/.local/share/SuperCollider/Extensions/scpy.os", RTLD_LAZY | RTLD_GLOBAL );
-
-	if (!handle) {
-		printf("dlopen did not work: %s\n", dlerror());
-		//scprintf("*** Loadit ERROR: dlopen '%s' err '%s'\n", filename, dlerror());
-		dlclose(handle);
-		return;
-	}
-
-	void *ptr = dlsym(handle, "load");
-	if (!ptr) {
-		printf("dlsym on load did not work\n");
-		//scprintf("*** ERROR: dlsym load err '%s'\n", dlerror());
-		dlclose(handle);
-		return;
-	}
-
-	LoadPlugInFunc loadFunc = (LoadPlugInFunc)ptr;
-	(*loadFunc)(ft);
-
-	// open_handles.push_back(handle);
-
-
+    printf("Trying to load scpy.os\n");
+    void* handle = dlopen("/home/hindle1/.local/share/SuperCollider/Extensions/scpy.os", RTLD_LAZY | RTLD_GLOBAL );
+    if (!handle) {
+        printf("dlopen did not work: %s\n", dlerror());
+        //scprintf("*** Loadit ERROR: dlopen '%s' err '%s'\n", filename, dlerror());
+        dlclose(handle);
+        return;
+    }
+    
+    void *ptr = dlsym(handle, "load");
+    if (!ptr) {
+        printf("dlsym on load did not work\n");
+        //scprintf("*** ERROR: dlsym load err '%s'\n", dlerror());
+        dlclose(handle);
+        return;
+    }
+    LoadPlugInFunc loadFunc = (LoadPlugInFunc)ptr;
+    (*loadFunc)(ft);
+    
+    // open_handles.push_back(handle);
 }
