@@ -1,6 +1,8 @@
 // transform any sound into a falling shephard tone
 // you'll need some sound going into SuperCollider's first 2 inputs.
+s.boot;
 (s.waitForBoot {
+(
     var buf = { Buffer.alloc(s, 512) }.dup;
     var hop = 1/4;
 
@@ -25,4 +27,5 @@
         ", (x:x, time:Sweep.kr));
         Out.ar(0, IFFT(x));
     }.play(s);
+)
 })
