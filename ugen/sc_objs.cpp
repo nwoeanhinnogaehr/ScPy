@@ -73,27 +73,34 @@ ComplexBufferObject::recv()
 ArrayObject::ArrayObject(vector<Object*> objs)
 {
     _objs = objs;
-    _obj = PyList_New(objs.size());
-    for (size_t i = 0; i < objs.size(); i++) {
-        PyList_SetItem(_obj, i, objs[i]->pyObject());
+    _obj = PyList_New(_objs.size());
+    for (size_t i = 0; i < _objs.size(); i++) {
+        PyList_SetItem(_obj, i, _objs[i]->pyObject());
     }
 }
 
 void
 ArrayObject::send()
 {
-    // TODO if the array items have been reassigned in python, this can
-    // segfault!
-    for (Object* obj : _objs) {
-        obj->send();
+    for (size_t i = 0; i < _objs.size(); i++) {
+        Object* item = _objs[i];
+        if (item->pyObject() == PyList_GetItem(_obj, i)) {
+            item->send();
+        }
     }
 }
 
 void
 ArrayObject::recv()
 {
-    for (Object* obj : _objs) {
-        obj->recv();
+    for (size_t i = 0; i < _objs.size(); i++) {
+        Object* item = _objs[i];
+        if (item->pyObject() == PyList_GetItem(_obj, i)) {
+            item->recv();
+        } else {
+            std::cout << "WARNING: A list object has been mutated in Python! "
+                "It has been disconnected from SuperCollider." << std::endl;
+        }
     }
 }
 
