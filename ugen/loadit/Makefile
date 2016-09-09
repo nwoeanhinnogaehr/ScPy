@@ -16,13 +16,13 @@ OBJ_FILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 all : scpy.so
 
 scpy.so : $(OBJ_FILES) YOURPYTHONLIB.sh
-	$(CXX) *.o -shared -o scpy.so $(CXXFLAGS) $(LDFLAGS) 
+	$(CXX) *.o -shared -o scpy.so $(CXXFLAGS) $(LDFLAGS)
 
 %.o : %.cpp *.h YOURPYTHONLIB.sh
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-install : scpy.so scpy.sc
-	cp -f scpy.sc scpy.so $(SC_EXT_DIR)
+install : scpy.so ../scpy.sc
+	cp -rf ../SystemOverwrites ../python ../scpy.sc scpy.so $(SC_EXT_DIR)
 	cp -f ../scpy.so $(SC_EXT_DIR)/scpy.os
 
 clean :

@@ -5,6 +5,7 @@
 #include <numpy/arrayobject.h>
 #include <sstream>
 #include <vector>
+#include <dlfcn.h>
 
 using namespace std;
 
@@ -43,7 +44,17 @@ importQualified(PyObject* main, const char* name, const char* as)
 Evaluator::Evaluator()
 {
     cout << "Evaluator()" << endl;
-    setenv("PYTHONPATH", ABS_SOURCE_PATH "/../py", 1);
+
+    Dl_info dl_info;
+    if (dladdr((void *)importUnqualified, &dl_info)) {
+        string filename(dl_info.dli_fname);
+        string python_path = filename.substr(0, filename.find_last_of('/')) + "/python";
+        cout << "Put user python libs in " <<  python_path << endl;
+        setenv("PYTHONPATH", python_path.c_str(), 1);
+    } else {
+        cout << "dladdr failed. Python extensions will be unavailable" << endl;
+    }
+
     Py_Initialize();
     _import_array();
     PyObject* main = PyImport_AddModule("__main__");

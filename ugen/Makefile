@@ -15,13 +15,13 @@ OBJ_FILES := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 all : scpy.so
 
 scpy.so : $(OBJ_FILES)
-	$(CXX) *.o -shared -o scpy.so $(CXXFLAGS) $(LDFLAGS) 
+	$(CXX) *.o -shared -o scpy.so $(CXXFLAGS) $(LDFLAGS)
 
 %.o : %.cpp *.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 install : scpy.so scpy.sc
-	cp -rf scpy.sc scpy.so SystemOverwrites $(SC_EXT_DIR)
+	cp -rf scpy.sc scpy.so SystemOverwrites python $(SC_EXT_DIR)
 
 ubuntuinstall: scpy.so
 	cd loadit && make install
