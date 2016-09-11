@@ -23,9 +23,9 @@ As we have had linking issues with python on Ubuntu 16.04.
 ## run
 Check out the [examples](examples).
 
-This was tested with SuperCollider 3.6.6 and Python 3.5.2.
+This was tested with SuperCollider >=3.6.6 and Python 3.5.2.
 
-For unknown reasons performance is much better with 3.6.6 than the latest SuperCollider.
+Using the latest SuperCollider allows you to do larger FFTs.
 
 If you run into problems, please file an issue!
 
@@ -47,7 +47,7 @@ Where:
 
 The `Once` versions are different in that they are not UGens, but rather run the code immediately. They have the doneAction argument set such that they terminate after running the Python code once.
 
-All NumPy functions are imported for you automatically. Variables defined at the top level in a Python block are accessible globally in other Python blocks. Some additional useful things which are accessible are defined in [py/api.py](py/api.py).
+All NumPy functions are imported for you automatically. Variables defined at the top level in a Python block are accessible globally in other Python blocks. Some additional useful things which are accessible are defined in [ugen/python/api.py](ugen/python/api.py).
 
 Currently supported SuperCollider types and corresponding Python types:
 
